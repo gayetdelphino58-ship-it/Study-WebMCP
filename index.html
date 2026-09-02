@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Study webMCP</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- En-tête -->
+    <header class="header">
+        <div class="logo">
+            🎓 Study <span>webMCP</span>
+        </div>
+
+        <nav>
+            <a href="#dashboard">Tableau de bord</a>
+            <a href="#courses">Mes cours</a>
+            <a href="#planning">Plan d'étude</a>
+            <a href="#quiz">Quiz</a>
+        </nav>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+
+        <!-- Section Dashboard -->
+        <section id="dashboard" class="hero">
+
+            <div class="hero-content">
+                <p class="badge">🤖 Assistant d'étude intelligent</p>
+
+                <h1>
+                    Étudie mieux avec
+                    <span>Study webMCP</span>
+                </h1>
+
+                <p class="description">
+                    Organise tes cours, planifie tes révisions,
+                    crée des quiz et suis ta progression avec
+                    l'aide de l'intelligence artificielle.
+                </p>
+
+                <div class="hero-buttons">
+                    <button id="startStudyBtn" class="primary-btn">
+                        🚀 Commencer mes études
+                    </button>
+
+                    <button id="addCourseBtn" class="secondary-btn">
+                        📚 Ajouter un cours
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Statistiques -->
+        <section class="stats">
+
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <h3 id="courseCount">0</h3>
+                <p>Cours</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <h3 id="studySessions">0</h3>
+                <p>Sessions</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🧠</div>
+                <h3 id="quizCount">0</h3>
+                <p>Quiz réalisés</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <h3 id="progressValue">0%</h3>
+                <p>Progression</p>
+            </div>
+
+        </section>
+
+
+        <!-- Mes cours -->
+        <section id="courses" class="section">
+
+            <div class="section-header">
+                <div>
+                    <p class="section-label">📚 APPRENTISSAGE</p>
+                    <h2>Mes cours</h2>
+                </div>
+
+                <button id="newCourseBtn" class="primary-btn">
+                    + Nouveau cours
+                </button>
+            </div>
+
+            <div id="courseList" class="course-grid">
+
+                <div class="empty-state">
+                    <div class="empty-icon">📖</div>
+                    <h3>Aucun cours pour le moment</h3>
+                    <p>
+                        Ajoute ton premier cours pour commencer
+                        ton apprentissage.
+                    </p>
+
+                    <button id="emptyAddCourseBtn" class="primary-btn">
+                        Ajouter mon premier cours
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Plan d'étude -->
+        <section id="planning" class="section planning-section">
+
+            <div class="section-header">
+                <div>
+                    <p class="section-label">📅 ORGANISATION</p>
+                    <h2>Mon plan d'étude</h2>
+                </div>
+
+                <button id="generatePlanBtn" class="primary-btn">
+                    🤖 Générer mon plan
+                </button>
+            </div>
+
+            <div id="studyPlan" class="plan-container">
+
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+
+                    <h3>Ton planning apparaîtra ici</h3>
+
+                    <p>
+                        L'assistant pourra créer automatiquement
+                        un programme de révision adapté à tes cours.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Quiz -->
+        <section id="quiz" class="section">
+
+            <div class="section-header">
+                <div>
+                    <p class="section-label">🧠 ÉVALUATION</p>
+                    <h2>Quiz</h2>
+                </div>
+
+                <button id="generateQuizBtn" class="primary-btn">
+                    ✨ Générer un quiz
+                </button>
+            </div>
+
+            <div id="quizContainer" class="quiz-container">
+
+                <div class="empty-state">
+                    <div class="empty-icon">🧠</div>
+
+                    <h3>Teste tes connaissances</h3>
+
+                    <p>
+                        Crée un quiz à partir de tes cours
+                        et mesure tes connaissances.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Progression -->
+        <section class="section progress-section">
+
+            <div class="section-header">
+                <div>
+                    <p class="section-label">📊 PERFORMANCE</p>
+                    <h2>Ma progression</h2>
+                </div>
+            </div>
+
+            <div class="progress-card">
+
+                <div class="progress-info">
+                    <span>Progression générale</span>
+                    <strong id="progressText">0%</strong>
+                </div>
+
+                <div class="progress-bar">
+                    <div id="progressBar"></div>
+                </div>
+
+                <p>
+                    Continue tes révisions pour améliorer
+                    ta progression.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Pied de page -->
+    <footer>
+        <p>
+            © 2026 Study webMCP — Assistant d'étude intelligent
+        </p>
+
+        <p>
+            Conçu avec ❤️ pour les étudiants
+        </p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
