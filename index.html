@@ -1,18 +1,23 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Study webMCP</title>
+    <title>Study webMCP - Assistant d'étude intelligent</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- En-tête -->
+    <!-- =========================
+         HEADER
+    ========================== -->
+
     <header class="header">
+
         <div class="logo">
             🎓 Study <span>webMCP</span>
         </div>
@@ -23,16 +28,25 @@
             <a href="#planning">Plan d'étude</a>
             <a href="#quiz">Quiz</a>
         </nav>
+
     </header>
 
-    <!-- Contenu principal -->
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
     <main>
 
-        <!-- Section Dashboard -->
+        <!-- HERO -->
+
         <section id="dashboard" class="hero">
 
             <div class="hero-content">
-                <p class="badge">🤖 Assistant d'étude intelligent</p>
+
+                <p class="badge">
+                    🤖 Assistant d'étude intelligent
+                </p>
 
                 <h1>
                     Étudie mieux avec
@@ -46,108 +60,238 @@
                 </p>
 
                 <div class="hero-buttons">
-                    <button id="startStudyBtn" class="primary-btn">
+
+                    <button
+                        id="startStudyBtn"
+                        class="primary-btn">
                         🚀 Commencer mes études
                     </button>
 
-                    <button id="addCourseBtn" class="secondary-btn">
+                    <button
+                        id="addCourseBtn"
+                        class="secondary-btn">
                         📚 Ajouter un cours
                     </button>
+
                 </div>
+
             </div>
 
         </section>
 
 
-        <!-- Statistiques -->
+        <!-- =========================
+             STATISTIQUES
+        ========================== -->
+
         <section class="stats">
 
             <div class="stat-card">
-                <div class="stat-icon">📚</div>
-                <h3 id="courseCount">0</h3>
-                <p>Cours</p>
+
+                <div class="stat-icon">
+                    📚
+                </div>
+
+                <h3 id="courseCount">
+                    0
+                </h3>
+
+                <p>
+                    Cours
+                </p>
+
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon">📅</div>
-                <h3 id="studySessions">0</h3>
-                <p>Sessions</p>
-            </div>
 
             <div class="stat-card">
-                <div class="stat-icon">🧠</div>
-                <h3 id="quizCount">0</h3>
-                <p>Quiz réalisés</p>
+
+                <div class="stat-icon">
+                    📅
+                </div>
+
+                <h3 id="studySessions">
+                    0
+                </h3>
+
+                <p>
+                    Sessions
+                </p>
+
             </div>
 
+
             <div class="stat-card">
-                <div class="stat-icon">📊</div>
-                <h3 id="progressValue">0%</h3>
-                <p>Progression</p>
+
+                <div class="stat-icon">
+                    🧠
+                </div>
+
+                <h3 id="quizCount">
+                    0
+                </h3>
+
+                <p>
+                    Quiz réalisés
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📊
+                </div>
+
+                <h3 id="progressValue">
+                    0%
+                </h3>
+
+                <p>
+                    Progression
+                </p>
+
             </div>
 
         </section>
 
 
-        <!-- Mes cours -->
+        <!-- =========================
+             MES COURS
+        ========================== -->
+
         <section id="courses" class="section">
 
             <div class="section-header">
+
                 <div>
-                    <p class="section-label">📚 APPRENTISSAGE</p>
-                    <h2>Mes cours</h2>
+
+                    <p class="section-label">
+                        📚 APPRENTISSAGE
+                    </p>
+
+                    <h2>
+                        Mes cours
+                    </h2>
+
                 </div>
 
-                <button id="newCourseBtn" class="primary-btn">
+
+                <button
+                    id="newCourseBtn"
+                    class="primary-btn">
+
                     + Nouveau cours
+
                 </button>
+
             </div>
 
-            <div id="courseList" class="course-grid">
 
-                <div class="empty-state">
-                    <div class="empty-icon">📖</div>
-                    <h3>Aucun cours pour le moment</h3>
-                    <p>
-                        Ajoute ton premier cours pour commencer
-                        ton apprentissage.
-                    </p>
+            <!-- Recherche -->
 
-                    <button id="emptyAddCourseBtn" class="primary-btn">
-                        Ajouter mon premier cours
-                    </button>
-                </div>
+            <div style="
+                display:flex;
+                gap:10px;
+                margin-bottom:25px;
+                flex-wrap:wrap;
+            ">
+
+                <input
+                    id="searchCourseInput"
+                    type="text"
+                    placeholder="🔎 Rechercher un cours..."
+                    style="
+                        flex:1;
+                        min-width:250px;
+                        padding:13px;
+                        border:1px solid #dbe1ea;
+                        border-radius:10px;
+                        outline:none;
+                    "
+                >
+
+                <select
+                    id="filterSubject"
+                    style="
+                        padding:13px;
+                        border:1px solid #dbe1ea;
+                        border-radius:10px;
+                        background:white;
+                    "
+                >
+
+                    <option value="">
+                        Toutes les matières
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div
+                id="courseList"
+                class="course-grid">
 
             </div>
 
         </section>
 
 
-        <!-- Plan d'étude -->
-        <section id="planning" class="section planning-section">
+        <!-- =========================
+             PLAN D'ÉTUDE
+        ========================== -->
+
+        <section
+            id="planning"
+            class="section planning-section">
 
             <div class="section-header">
+
                 <div>
-                    <p class="section-label">📅 ORGANISATION</p>
-                    <h2>Mon plan d'étude</h2>
+
+                    <p class="section-label">
+                        📅 ORGANISATION
+                    </p>
+
+                    <h2>
+                        Mon plan d'étude
+                    </h2>
+
                 </div>
 
-                <button id="generatePlanBtn" class="primary-btn">
+
+                <button
+                    id="generatePlanBtn"
+                    class="primary-btn">
+
                     🤖 Générer mon plan
+
                 </button>
+
             </div>
 
-            <div id="studyPlan" class="plan-container">
+
+            <div
+                id="studyPlan"
+                class="plan-container">
 
                 <div class="empty-state">
-                    <div class="empty-icon">📅</div>
 
-                    <h3>Ton planning apparaîtra ici</h3>
+                    <div class="empty-icon">
+                        📅
+                    </div>
+
+                    <h3>
+                        Ton planning apparaîtra ici
+                    </h3>
 
                     <p>
-                        L'assistant pourra créer automatiquement
-                        un programme de révision adapté à tes cours.
+                        Ajoute des cours pour pouvoir créer
+                        ton programme de révision.
                     </p>
+
                 </div>
 
             </div>
@@ -155,31 +299,59 @@
         </section>
 
 
-        <!-- Quiz -->
-        <section id="quiz" class="section">
+        <!-- =========================
+             QUIZ
+        ========================== -->
+
+        <section
+            id="quiz"
+            class="section">
 
             <div class="section-header">
+
                 <div>
-                    <p class="section-label">🧠 ÉVALUATION</p>
-                    <h2>Quiz</h2>
+
+                    <p class="section-label">
+                        🧠 ÉVALUATION
+                    </p>
+
+                    <h2>
+                        Quiz
+                    </h2>
+
                 </div>
 
-                <button id="generateQuizBtn" class="primary-btn">
+
+                <button
+                    id="generateQuizBtn"
+                    class="primary-btn">
+
                     ✨ Générer un quiz
+
                 </button>
+
             </div>
 
-            <div id="quizContainer" class="quiz-container">
+
+            <div
+                id="quizContainer"
+                class="quiz-container">
 
                 <div class="empty-state">
-                    <div class="empty-icon">🧠</div>
 
-                    <h3>Teste tes connaissances</h3>
+                    <div class="empty-icon">
+                        🧠
+                    </div>
+
+                    <h3>
+                        Teste tes connaissances
+                    </h3>
 
                     <p>
-                        Crée un quiz à partir de tes cours
-                        et mesure tes connaissances.
+                        Les quiz seront disponibles dans
+                        une prochaine étape.
                     </p>
+
                 </div>
 
             </div>
@@ -187,26 +359,50 @@
         </section>
 
 
-        <!-- Progression -->
+        <!-- =========================
+             PROGRESSION
+        ========================== -->
+
         <section class="section progress-section">
 
             <div class="section-header">
+
                 <div>
-                    <p class="section-label">📊 PERFORMANCE</p>
-                    <h2>Ma progression</h2>
+
+                    <p class="section-label">
+                        📊 PERFORMANCE
+                    </p>
+
+                    <h2>
+                        Ma progression
+                    </h2>
+
                 </div>
+
             </div>
+
 
             <div class="progress-card">
 
                 <div class="progress-info">
-                    <span>Progression générale</span>
-                    <strong id="progressText">0%</strong>
+
+                    <span>
+                        Progression générale
+                    </span>
+
+                    <strong id="progressText">
+                        0%
+                    </strong>
+
                 </div>
 
+
                 <div class="progress-bar">
+
                     <div id="progressBar"></div>
+
                 </div>
+
 
                 <p>
                     Continue tes révisions pour améliorer
@@ -220,19 +416,266 @@
     </main>
 
 
-    <!-- Pied de page -->
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
     <footer>
+
         <p>
             © 2026 Study webMCP — Assistant d'étude intelligent
         </p>
 
         <p>
-            Conçu avec ❤️ pour les étudiants
+            Conçu pour aider les étudiants à mieux apprendre.
         </p>
+
     </footer>
+
+
+    <!-- =========================
+         MODAL AJOUT / MODIFICATION
+    ========================== -->
+
+    <div
+        id="courseModal"
+        style="
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.55);
+            z-index:2000;
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+        "
+    >
+
+        <div
+            style="
+                width:100%;
+                max-width:550px;
+                background:white;
+                border-radius:18px;
+                padding:30px;
+                box-shadow:0 20px 60px rgba(0,0,0,0.2);
+            "
+        >
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:25px;
+            ">
+
+                <h2 id="modalTitle">
+                    Ajouter un cours
+                </h2>
+
+                <button
+                    id="closeModalBtn"
+                    style="
+                        border:none;
+                        background:#f1f5f9;
+                        width:35px;
+                        height:35px;
+                        border-radius:50%;
+                        cursor:pointer;
+                        font-size:18px;
+                    "
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="courseForm">
+
+                <input
+                    type="hidden"
+                    id="courseId"
+                >
+
+
+                <label
+                    for="courseTitle"
+                    style="
+                        display:block;
+                        font-weight:bold;
+                        margin-bottom:7px;
+                    "
+                >
+                    Titre du cours
+                </label>
+
+                <input
+                    id="courseTitle"
+                    type="text"
+                    placeholder="Ex : Géographie urbaine"
+                    required
+                    style="
+                        width:100%;
+                        padding:13px;
+                        margin-bottom:18px;
+                        border:1px solid #dbe1ea;
+                        border-radius:10px;
+                    "
+                >
+
+
+                <label
+                    for="courseSubject"
+                    style="
+                        display:block;
+                        font-weight:bold;
+                        margin-bottom:7px;
+                    "
+                >
+                    Matière
+                </label>
+
+                <input
+                    id="courseSubject"
+                    type="text"
+                    placeholder="Ex : Géographie"
+                    required
+                    style="
+                        width:100%;
+                        padding:13px;
+                        margin-bottom:18px;
+                        border:1px solid #dbe1ea;
+                        border-radius:10px;
+                    "
+                >
+
+
+                <label
+                    for="courseLevel"
+                    style="
+                        display:block;
+                        font-weight:bold;
+                        margin-bottom:7px;
+                    "
+                >
+                    Niveau
+                </label>
+
+                <select
+                    id="courseLevel"
+                    required
+                    style="
+                        width:100%;
+                        padding:13px;
+                        margin-bottom:18px;
+                        border:1px solid #dbe1ea;
+                        border-radius:10px;
+                    "
+                >
+
+                    <option value="">
+                        Sélectionner
+                    </option>
+
+                    <option value="Débutant">
+                        Débutant
+                    </option>
+
+                    <option value="Intermédiaire">
+                        Intermédiaire
+                    </option>
+
+                    <option value="Avancé">
+                        Avancé
+                    </option>
+
+                </select>
+
+
+                <label
+                    for="courseDescription"
+                    style="
+                        display:block;
+                        font-weight:bold;
+                        margin-bottom:7px;
+                    "
+                >
+                    Description / contenu
+                </label>
+
+                <textarea
+                    id="courseDescription"
+                    rows="5"
+                    placeholder="Décris brièvement le contenu du cours..."
+                    style="
+                        width:100%;
+                        padding:13px;
+                        margin-bottom:18px;
+                        border:1px solid #dbe1ea;
+                        border-radius:10px;
+                        resize:vertical;
+                    "
+                ></textarea>
+
+
+                <label
+                    for="courseExamDate"
+                    style="
+                        display:block;
+                        font-weight:bold;
+                        margin-bottom:7px;
+                    "
+                >
+                    Date de l'examen
+                </label>
+
+                <input
+                    id="courseExamDate"
+                    type="date"
+                    style="
+                        width:100%;
+                        padding:13px;
+                        margin-bottom:22px;
+                        border:1px solid #dbe1ea;
+                        border-radius:10px;
+                    "
+                >
+
+
+                <div style="
+                    display:flex;
+                    gap:10px;
+                    justify-content:flex-end;
+                ">
+
+                    <button
+                        type="button"
+                        id="cancelCourseBtn"
+                        class="secondary-btn"
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-btn"
+                    >
+                        💾 Enregistrer
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 
 
     <script src="script.js"></script>
 
 </body>
 </html>
+```
+
