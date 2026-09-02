@@ -2643,6 +2643,85 @@ return String(value)
     )
     .replace(
         /"/g,
+        // ==================================================
+// 🤖 INTÉGRATION WEBMCP (POUR L'AGENT IA)
+// ==================================================
+
+function setupWebMCP() {
+    if (typeof window.webmcp !== 'undefined' && typeof window.webmcp.registerTool === 'function') {
+        console.log("🍏 WebMCP Activé : Outils enregistrés pour l'agent IA.");
+
+        // Outil 1 : Récupérer la liste des cours
+        window.webmcp.registerTool({
+            name: "get_courses",
+            description: "Récupère la liste de tous les cours actuels de l'étudiant et ses statistiques.",
+            parameters: { type: "object", properties: {} },
+            execute: async () => {
+                return { success: true, courses: getCourses() };
+            }
+        });
+
+        // Outil 2 : Ajouter un cours via l'IA
+        window.webmcp.registerTool({
+            name: "add_course",
+            description: "Ajoute automatiquement un nouveau cours au programme de révision de l'étudiant.",
+            parameters: {
+                type: "object",
+                properties: {
+                    title: { type: "string" },
+                    subject: { type: "string" },
+                    level: { type: "string", description: "Ex: Débutant, Intermédiaire, Avancé" },
+                    description: { type: "string" }
+                },
+                required: ["title", "subject", "level"]
+            },
+            execute: async (args) => {
+                const courses = getCourses();
+                const newCourse = {
+                    id: generateId(),
+                    title: args.title,
+                    subject: args.subject,
+                    level: args.level,
+                    description: args.description || "",
+                    examDate: "",
+                    progress: 0,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                courses.push(newCourse);
+                saveCourses(courses);
+                loadCourses();
+                updateStatistics();
+                return { success: true, message: `Le cours '${args.title}' a été ajouté avec succès.` };
+            }
+        });
+
+        // Outil 3 : Générer le plan d'étude
+        window.webmcp.registerTool({
+            name: "generate_study_plan",
+            description: "Génère et affiche visuellement le plan d'étude sur l'écran de l'étudiant.",
+            parameters: { type: "object", properties: {} },
+            execute: async () => {
+                generateStudyPlan();
+                return { success: true, message: "Le plan d'étude a été généré avec succès à l'écran." };
+            }
+        });
+
+        // Outil 4 : Préparer un Quiz
+        window.webmcp.registerTool({
+            name: "open_quiz_interface",
+            description: "Ouvre l'interface de quiz pour que l'étudiant puisse tester ses connaissances.",
+            parameters: { type: "object", properties: {} },
+            execute: async () => {
+                openQuizGenerator();
+                return { success: true, message: "L'interface du quiz est ouverte sur l'écran." };
+            }
+        });
+    }
+}
+
+// Lancement de l'écoute WebMCP avec un léger délai pour s'assurer que Chrome l'a bien injecté
+setTimeout(setupWebMCP, 500);
         "&quot;"
     )
     .replace(
