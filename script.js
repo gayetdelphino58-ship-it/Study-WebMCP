@@ -1,11 +1,81 @@
 "use strict";
 
 // ==================================================
-// CONFIGURATION
+// CONFIGURATION & COURS UNIVERSITAIRES DE GÉOGRAPHIE
 // ==================================================
 const STORAGE_COURSES = "studyCourses";
 const STORAGE_SESSIONS = "studySessions";
 const STORAGE_QUIZZES = "studyQuizzes";
+
+// Cours initiaux de Géographie et Aménagement du Territoire
+const DEFAULT_COURSES = [
+    {
+        id: "geo-urb-01",
+        title: "Géographie Urbaine et Métropolisation",
+        subject: "Aménagement du Territoire",
+        level: "Avancé",
+        description: "Étude des dynamiques spatiales des villes, ségrégation socio-spatiale, étalement urbain et gouvernance des métropoles.",
+        examDate: "2026-06-20",
+        progress: 35,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    },
+    {
+        id: "geo-sig-02",
+        title: "Cartographie Numérique et SIG (QGIS/ArcGIS)",
+        subject: "Géomatique",
+        level: "Intermédiaire",
+        description: "Manipulation de données géospatiales, géoréférencement, création de cartes thématiques et analyse spatiale sous QGIS.",
+        examDate: "2026-06-28",
+        progress: 50,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    },
+    {
+        id: "geo-rur-03",
+        title: "Géographie Rurale et Dynamiques Agraires",
+        subject: "Géographie Humaine",
+        level: "Débutant",
+        description: "Analyse des espaces agricoles, mutations des systèmes de production rurale et gestion des terroirs villageois en Afrique.",
+        examDate: "2026-07-05",
+        progress: 20,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    },
+    {
+        id: "geo-cli-04",
+        title: "Climatologie et Risques Environnementaux",
+        subject: "Géographie Physique",
+        level: "Intermédiaire",
+        description: "Étude des climats tropicaux, variabilité climatique, inondations, sécheresses et stratégies d'adaptation territoriale.",
+        examDate: "2026-07-15",
+        progress: 10,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    },
+    {
+        id: "geo-dem-05",
+        title: "Démographie et Analyse Spatiale de la Population",
+        subject: "Démographie",
+        level: "Avancé",
+        description: "Étude des structures de population, mortalité, natalité, flux migratoires et prospective démographique pour l'aménagement.",
+        examDate: "2026-07-22",
+        progress: 60,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    },
+    {
+        id: "geo-amen-06",
+        title: "Politiques d'Aménagement et Développement Local",
+        subject: "Aménagement du Territoire",
+        level: "Avancé",
+        description: "Planification stratégique, décentralisation, schémas directeurs d'aménagement urbain (SDAU) et gestion des collectivités locales.",
+        examDate: "2026-08-10",
+        progress: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    }
+];
 
 // ==================================================
 // INITIALISATION
@@ -25,17 +95,21 @@ function initializeApplication() {
 }
 
 // ==================================================
-// RÉCUPÉRER LES COURS
+// RÉCUPÉRER LES COURS (AVEC VALEURS PAR DÉFAUT)
 // ==================================================
 function getCourses() {
     try {
         const data = localStorage.getItem(STORAGE_COURSES);
-        if (!data) return [];
+        if (!data) {
+            // Si le localStorage est vide, on injecte directement les cours de géographie universitaires
+            localStorage.setItem(STORAGE_COURSES, JSON.stringify(DEFAULT_COURSES));
+            return DEFAULT_COURSES;
+        }
         const courses = JSON.parse(data);
-        return Array.isArray(courses) ? courses : [];
+        return Array.isArray(courses) ? courses : DEFAULT_COURSES;
     } catch (error) {
         console.error("Erreur lors de la récupération des cours :", error);
-        return [];
+        return DEFAULT_COURSES;
     }
 }
 
@@ -228,7 +302,7 @@ function createCourseCard(course) {
     return `
         <article class="stat-card course-card" data-course-id="${safeId}" style="text-align:left; position:relative;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-                <div style="font-size:35px;">📚</div>
+                <div style="font-size:35px;">🌍</div>
                 <span style="background:#eef2ff; color:#4f46e5; padding:5px 9px; border-radius:20px; font-size:11px; font-weight:bold;">${safeLevel}</span>
             </div>
             <h3 style="margin-top:15px; font-size:20px;">${safeTitle}</h3>
@@ -708,7 +782,7 @@ function setupWebMCP() {
 
         window.webmcp.registerTool({
             name: "get_courses",
-            description: "Récupère la liste de tous les cours actuels de l'étudiant.",
+            description: "Récupère la liste de tous les cours actuels de géographie et aménagement du territoire.",
             parameters: { type: "object", properties: {} },
             execute: async () => {
                 return { success: true, courses: getCourses() };
@@ -717,7 +791,7 @@ function setupWebMCP() {
 
         window.webmcp.registerTool({
             name: "add_course",
-            description: "Ajoute automatiquement un nouveau cours au programme.",
+            description: "Ajoute automatiquement un nouveau cours de géographie au programme.",
             parameters: {
                 type: "object",
                 properties: {
@@ -746,7 +820,7 @@ function setupWebMCP() {
 
         window.webmcp.registerTool({
             name: "generate_study_plan",
-            description: "Génère et affiche le plan d'étude.",
+            description: "Génère et affiche le plan d'étude des cours de géographie.",
             parameters: { type: "object", properties: {} },
             execute: async () => {
                 generateStudyPlan();
