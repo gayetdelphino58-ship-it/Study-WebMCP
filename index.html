@@ -1,20 +1,73 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Study webMCP - Assistant d'étude intelligent</title>
+
     <link rel="stylesheet" href="style.css">
+
+    <!--
+        ==========================================================
+        WEBMCP
+        ==========================================================
+        Cette application est préparée pour exposer des outils
+        utilisables par un agent IA compatible WebMCP.
+
+        IMPORTANT :
+        L'IA ne reçoit PAS automatiquement les données de
+        localStorage simplement parce que la page est ouverte.
+
+        Les outils WebMCP ci-dessous permettent à l'agent IA de :
+        - lire les cours
+        - ajouter un cours
+        - générer le plan d'étude
+        - ouvrir le générateur de quiz
+        ==========================================================
+    -->
+
+    <script>
+        /*
+         * Petit indicateur permettant de savoir si le navigateur
+         * possède déjà l'API WebMCP.
+         *
+         * L'API actuelle utilise :
+         * document.modelContext
+         *
+         * navigator.modelContext est conservé uniquement comme
+         * compatibilité avec certaines anciennes implémentations.
+         */
+        window.addEventListener("DOMContentLoaded", () => {
+            const webMCP =
+                document.modelContext ||
+                navigator.modelContext;
+
+            if (webMCP) {
+                console.log("🤖 WebMCP disponible sur cette page.");
+            } else {
+                console.log(
+                    "ℹ️ WebMCP natif non disponible dans ce navigateur. " +
+                    "L'application fonctionne normalement."
+                );
+            }
+        });
+    </script>
 </head>
+
 <body>
 
-<!-- =========================
+<!-- =========================================================
      HEADER
-========================== -->
+========================================================= -->
+
 <header class="header">
+
     <div class="logo">
         🎓 Study <span>webMCP</span>
     </div>
+
     <nav>
         <a href="#dashboard">Tableau de bord</a>
         <a href="#courses">Mes cours</a>
@@ -22,210 +75,1218 @@
         <a href="#quiz">Quiz</a>
         <a href="#progress">Progression</a>
     </nav>
+
 </header>
 
-<!-- =========================
+
+<!-- =========================================================
      MAIN
-========================== -->
+========================================================= -->
+
 <main>
 
-    <!-- =========================
+    <!-- =====================================================
          HERO
-    ========================== -->
+    ====================================================== -->
+
     <section id="dashboard" class="hero">
+
         <div class="hero-content">
-            <p class="badge">🤖 Assistant d'étude intelligent</p>
-            <h1>Étudie mieux avec <span>Study webMCP</span></h1>
+
+            <p class="badge">
+                🤖 Assistant d'étude intelligent
+            </p>
+
+            <h1>
+                Étudie mieux avec
+                <span>Study webMCP</span>
+            </h1>
+
             <p class="description">
                 Organise tes cours, planifie tes révisions,
                 crée des quiz et suis ta progression avec
                 l'aide de l'intelligence artificielle.
             </p>
+
             <div class="hero-buttons">
-                <button id="startStudyBtn" class="primary-btn" type="button">
+
+                <button
+                    id="startStudyBtn"
+                    class="primary-btn"
+                    type="button"
+                >
                     🚀 Commencer mes études
                 </button>
-                <button id="addCourseBtn" class="secondary-btn" type="button">
+
+                <button
+                    id="addCourseBtn"
+                    class="secondary-btn"
+                    type="button"
+                >
                     📚 Ajouter un cours
                 </button>
+
             </div>
+
         </div>
+
     </section>
 
-    <!-- =========================
+
+    <!-- =====================================================
          STATISTIQUES
-    ========================== -->
+    ====================================================== -->
+
     <section class="stats">
+
         <div class="stat-card">
-            <div class="stat-icon">📚</div>
-            <h3 id="courseCount">0</h3>
-            <p>Cours</p>
+
+            <div class="stat-icon">
+                📚
+            </div>
+
+            <h3 id="courseCount">
+                0
+            </h3>
+
+            <p>
+                Cours
+            </p>
+
         </div>
+
+
         <div class="stat-card">
-            <div class="stat-icon">📅</div>
-            <h3 id="studySessions">0</h3>
-            <p>Sessions</p>
+
+            <div class="stat-icon">
+                📅
+            </div>
+
+            <h3 id="studySessions">
+                0
+            </h3>
+
+            <p>
+                Sessions
+            </p>
+
         </div>
+
+
         <div class="stat-card">
-            <div class="stat-icon">🧠</div>
-            <h3 id="quizCount">0</h3>
-            <p>Quiz réalisés</p>
+
+            <div class="stat-icon">
+                🧠
+            </div>
+
+            <h3 id="quizCount">
+                0
+            </h3>
+
+            <p>
+                Quiz réalisés
+            </p>
+
         </div>
+
+
         <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <h3 id="progressValue">0%</h3>
-            <p>Progression</p>
+
+            <div class="stat-icon">
+                📊
+            </div>
+
+            <h3 id="progressValue">
+                0%
+            </h3>
+
+            <p>
+                Progression
+            </p>
+
         </div>
+
     </section>
 
-    <!-- =========================
+
+    <!-- =====================================================
          MES COURS
-    ========================== -->
+    ====================================================== -->
+
     <section id="courses" class="section">
+
         <div class="section-header">
+
             <div>
-                <p class="section-label">📚 APPRENTISSAGE</p>
-                <h2>Mes cours</h2>
+
+                <p class="section-label">
+                    📚 APPRENTISSAGE
+                </p>
+
+                <h2>
+                    Mes cours
+                </h2>
+
             </div>
-            <button id="newCourseBtn" class="primary-btn" type="button">
+
+            <button
+                id="newCourseBtn"
+                class="primary-btn"
+                type="button"
+            >
                 + Nouveau cours
             </button>
+
         </div>
+
 
         <!-- Recherche et filtre -->
-        <div class="course-tools" style="display:flex; gap:10px; margin-bottom:25px; flex-wrap:wrap;">
-            <input id="searchCourseInput" type="search" placeholder="🔎 Rechercher un cours..." autocomplete="off" style="flex:1; min-width:250px; padding:13px; border:1px solid #dbe1ea; border-radius:10px; outline:none;">
-            <select id="filterSubject" style="padding:13px; border:1px solid #dbe1ea; border-radius:10px; background:white;">
-                <option value="">Toutes les matières</option>
+
+        <div
+            class="course-tools"
+            style="
+                display:flex;
+                gap:10px;
+                margin-bottom:25px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <input
+                id="searchCourseInput"
+                type="search"
+                placeholder="🔎 Rechercher un cours..."
+                autocomplete="off"
+                style="
+                    flex:1;
+                    min-width:250px;
+                    padding:13px;
+                    border:1px solid #dbe1ea;
+                    border-radius:10px;
+                    outline:none;
+                "
+            >
+
+
+            <select
+                id="filterSubject"
+                style="
+                    padding:13px;
+                    border:1px solid #dbe1ea;
+                    border-radius:10px;
+                    background:white;
+                "
+            >
+
+                <option value="">
+                    Toutes les matières
+                </option>
+
             </select>
+
         </div>
 
-        <div id="courseList" class="course-grid"></div>
+
+        <div
+            id="courseList"
+            class="course-grid"
+        ></div>
+
     </section>
 
-    <!-- =========================
+
+    <!-- =====================================================
          PLAN D'ÉTUDE
-    ========================== -->
-    <section id="planning" class="section planning-section">
+    ====================================================== -->
+
+    <section
+        id="planning"
+        class="section planning-section"
+    >
+
         <div class="section-header">
+
             <div>
-                <p class="section-label">📅 ORGANISATION</p>
-                <h2>Mon plan d'étude</h2>
+
+                <p class="section-label">
+                    📅 ORGANISATION
+                </p>
+
+                <h2>
+                    Mon plan d'étude
+                </h2>
+
             </div>
-            <button id="generatePlanBtn" class="primary-btn" type="button">
+
+
+            <button
+                id="generatePlanBtn"
+                class="primary-btn"
+                type="button"
+            >
                 🤖 Générer mon plan
             </button>
+
         </div>
 
-        <div id="studyPlan" class="plan-container">
+
+        <div
+            id="studyPlan"
+            class="plan-container"
+        >
+
             <div class="empty-state">
-                <div class="empty-icon">📅</div>
-                <h3>Ton planning apparaîtra ici</h3>
-                <p>Ajoute des cours pour pouvoir créer ton programme de révision.</p>
+
+                <div class="empty-icon">
+                    📅
+                </div>
+
+                <h3>
+                    Ton planning apparaîtra ici
+                </h3>
+
+                <p>
+                    Ajoute des cours pour pouvoir créer
+                    ton programme de révision.
+                </p>
+
             </div>
+
         </div>
+
     </section>
 
-    <!-- =========================
+
+    <!-- =====================================================
          QUIZ
-    ========================== -->
-    <section id="quiz" class="section">
+    ====================================================== -->
+
+    <section
+        id="quiz"
+        class="section"
+    >
+
         <div class="section-header">
+
             <div>
-                <p class="section-label">🧠 ÉVALUATION</p>
-                <h2>Quiz</h2>
+
+                <p class="section-label">
+                    🧠 ÉVALUATION
+                </p>
+
+                <h2>
+                    Quiz
+                </h2>
+
             </div>
-            <button id="generateQuizBtn" class="primary-btn" type="button">
+
+
+            <button
+                id="generateQuizBtn"
+                class="primary-btn"
+                type="button"
+            >
                 ✨ Générer un quiz
             </button>
+
         </div>
 
-        <div id="quizContainer" class="quiz-container">
+
+        <div
+            id="quizContainer"
+            class="quiz-container"
+        >
+
             <div class="empty-state">
-                <div class="empty-icon">🧠</div>
-                <h3>Teste tes connaissances</h3>
-                <p>Clique sur « Générer un quiz » pour commencer.</p>
+
+                <div class="empty-icon">
+                    🧠
+                </div>
+
+                <h3>
+                    Teste tes connaissances
+                </h3>
+
+                <p>
+                    Clique sur « Générer un quiz »
+                    pour commencer.
+                </p>
+
             </div>
+
         </div>
+
     </section>
 
-    <!-- =========================
+
+    <!-- =====================================================
          PROGRESSION
-    ========================== -->
-    <section id="progress" class="section progress-section">
+    ====================================================== -->
+
+    <section
+        id="progress"
+        class="section progress-section"
+    >
+
         <div class="section-header">
+
             <div>
-                <p class="section-label">📊 PERFORMANCE</p>
-                <h2>Ma progression</h2>
+
+                <p class="section-label">
+                    📊 PERFORMANCE
+                </p>
+
+                <h2>
+                    Ma progression
+                </h2>
+
             </div>
+
         </div>
+
 
         <div class="progress-card">
+
             <div class="progress-info">
-                <span>Progression générale</span>
-                <strong id="progressText">0%</strong>
+
+                <span>
+                    Progression générale
+                </span>
+
+                <strong id="progressText">
+                    0%
+                </strong>
+
             </div>
+
+
             <div class="progress-bar">
-                <div id="progressBar" style="width:0%;"></div>
+
+                <div
+                    id="progressBar"
+                    style="width:0%;"
+                ></div>
+
             </div>
-            <p>Continue tes révisions pour améliorer ta progression.</p>
+
+
+            <p>
+                Continue tes révisions pour améliorer
+                ta progression.
+            </p>
+
         </div>
+
     </section>
+
 </main>
 
-<!-- =========================
+
+<!-- =========================================================
      FOOTER
-========================== -->
+========================================================= -->
+
 <footer>
-    <p>© 2026 Study webMCP — Assistant d'étude intelligent</p>
-    <p>Conçu pour aider les étudiants à mieux apprendre.</p>
+
+    <p>
+        © 2026 Study webMCP — Assistant d'étude intelligent
+    </p>
+
+    <p>
+        Conçu pour aider les étudiants à mieux apprendre.
+    </p>
+
 </footer>
 
-<!-- =========================
-     MODAL COURS (AJOUT / MODIFICATION)
-========================== -->
-<div id="courseModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:2000; align-items:center; justify-content:center; padding:20px;">
-    <div style="width:100%; max-width:550px; max-height:90vh; overflow-y:auto; background:white; border-radius:18px; padding:30px; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-            <h2 id="modalTitle">Ajouter un cours</h2>
-            <button id="closeModalBtn" type="button" aria-label="Fermer" style="border:none; background:#f1f5f9; width:35px; height:35px; border-radius:50%; cursor:pointer; font-size:18px;">×</button>
+
+<!-- =========================================================
+     MODAL COURS
+========================================================= -->
+
+<div
+    id="courseModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.55);
+        z-index:2000;
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+    "
+>
+
+    <div
+        style="
+            width:100%;
+            max-width:550px;
+            max-height:90vh;
+            overflow-y:auto;
+            background:white;
+            border-radius:18px;
+            padding:30px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.2);
+        "
+    >
+
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:25px;
+            "
+        >
+
+            <h2 id="modalTitle">
+                Ajouter un cours
+            </h2>
+
+
+            <button
+                id="closeModalBtn"
+                type="button"
+                aria-label="Fermer"
+                style="
+                    border:none;
+                    background:#f1f5f9;
+                    width:35px;
+                    height:35px;
+                    border-radius:50%;
+                    cursor:pointer;
+                    font-size:18px;
+                "
+            >
+                ×
+            </button>
+
         </div>
 
+
         <form id="courseForm">
-            <input type="hidden" id="courseId" value="">
 
-            <label for="courseTitle" style="display:block; font-weight:bold; margin-bottom:7px;">Titre du cours</label>
-            <input id="courseTitle" type="text" placeholder="Ex : Géographie urbaine" required style="width:100%; padding:13px; margin-bottom:18px; border:1px solid #dbe1ea; border-radius:10px;">
+            <input
+                type="hidden"
+                id="courseId"
+                value=""
+            >
 
-            <label for="courseSubject" style="display:block; font-weight:bold; margin-bottom:7px;">Matière</label>
-            <input id="courseSubject" type="text" placeholder="Ex : Géographie" required style="width:100%; padding:13px; margin-bottom:18px; border:1px solid #dbe1ea; border-radius:10px;">
 
-            <label for="courseLevel" style="display:block; font-weight:bold; margin-bottom:7px;">Niveau</label>
-            <select id="courseLevel" required style="width:100%; padding:13px; margin-bottom:18px; border:1px solid #dbe1ea; border-radius:10px;">
-                <option value="">Sélectionner</option>
-                <option value="Débutant">Débutant</option>
-                <option value="Intermédiaire">Intermédiaire</option>
-                <option value="Avancé">Avancé</option>
+            <label
+                for="courseTitle"
+                style="
+                    display:block;
+                    font-weight:bold;
+                    margin-bottom:7px;
+                "
+            >
+                Titre du cours
+            </label>
+
+
+            <input
+                id="courseTitle"
+                type="text"
+                placeholder="Ex : Géographie urbaine"
+                required
+                style="
+                    width:100%;
+                    padding:13px;
+                    margin-bottom:18px;
+                    border:1px solid #dbe1ea;
+                    border-radius:10px;
+                "
+            >
+
+
+            <label
+                for="courseSubject"
+                style="
+                    display:block;
+                    font-weight:bold;
+                    margin-bottom:7px;
+                "
+            >
+                Matière
+            </label>
+
+
+            <input
+                id="courseSubject"
+                type="text"
+                placeholder="Ex : Géographie"
+                required
+                style="
+                    width:100%;
+                    padding:13px;
+                    margin-bottom:18px;
+                    border:1px solid #dbe1ea;
+                    border-radius:10px;
+                "
+            >
+
+
+            <label
+                for="courseLevel"
+                style="
+                    display:block;
+                    font-weight:bold;
+                    margin-bottom:7px;
+                "
+            >
+                Niveau
+            </label>
+
+
+            <select
+                id="courseLevel"
+                required
+                style="
+                    width:100%;
+                    padding:13px;
+                    margin-bottom:18px;
+                    border:1px solid #dbe1ea;
+                    border-radius:10px;
+                "
+            >
+
+                <option value="">
+                    Sélectionner
+                </option>
+
+                <option value="Débutant">
+                    Débutant
+                </option>
+
+                <option value="Intermédiaire">
+                    Intermédiaire
+                </option>
+
+                <option value="Avancé">
+                    Avancé
+                </option>
+
             </select>
 
-            <label for="courseDescription" style="display:block; font-weight:bold; margin-bottom:7px;">Description / contenu</label>
-            <textarea id="courseDescription" rows="5" placeholder="Décris brièvement le contenu du cours..." style="width:100%; padding:13px; margin-bottom:18px; border:1px solid #dbe1ea; border-radius:10px; resize:vertical;"></textarea>
 
-            <label for="courseExamDate" style="display:block; font-weight:bold; margin-bottom:7px;">Date de l'examen</label>
-            <input id="courseExamDate" type="date" style="width:100%; padding:13px; margin-bottom:22px; border:1px solid #dbe1ea; border-radius:10px;">
+            <label
+                for="courseDescription"
+                style="
+                    display:block;
+                    font-weight:bold;
+                    margin-bottom:7px;
+                "
+            >
+                Description / contenu
+            </label>
 
-            <div style="display:flex; gap:10px; justify-content:flex-end;">
-                <button type="button" id="cancelCourseBtn" class="secondary-btn">Annuler</button>
-                <button type="submit" class="primary-btn">💾 Enregistrer</button>
+
+            <textarea
+                id="courseDescription"
+                rows="5"
+                placeholder="Décris brièvement le contenu du cours..."
+                style="
+                    width:100%;
+                    padding:13px;
+                    margin-bottom:18px;
+                    border:1px solid #dbe1ea;
+                    border-radius:10px;
+                    resize:vertical;
+                "
+            ></textarea>
+
+
+            <label
+                for="courseExamDate"
+                style="
+                    display:block;
+                    font-weight:bold;
+                    margin-bottom:7px;
+                "
+            >
+                Date de l'examen
+            </label>
+
+
+            <input
+                id="courseExamDate"
+                type="date"
+                style="
+                    width:100%;
+                    padding:13px;
+                    margin-bottom:22px;
+                    border:1px solid #dbe1ea;
+                    border-radius:10px;
+                "
+            >
+
+
+            <div
+                style="
+                    display:flex;
+                    gap:10px;
+                    justify-content:flex-end;
+                "
+            >
+
+                <button
+                    type="button"
+                    id="cancelCourseBtn"
+                    class="secondary-btn"
+                >
+                    Annuler
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    💾 Enregistrer
+                </button>
+
             </div>
+
         </form>
+
     </div>
+
 </div>
 
-<!-- =========================
-     JAVASCRIPT (Corrigé vers script.js)
-========================== -->
+
+<!-- =========================================================
+     SCRIPT PRINCIPAL
+========================================================= -->
+
 <script src="script.js"></script>
+
+
+<!-- =========================================================
+     WEBMCP BOOTSTRAP
+=========================================================
+
+     Le script principal contient les fonctions de l'application.
+
+     On attend que script.js soit chargé avant d'activer
+     l'intégration WebMCP.
+
+========================================================= -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    /*
+     * ========================================================
+     * RÉCUPÉRATION DE L'API WEBMCP
+     * ========================================================
+     */
+
+    function getModelContext() {
+
+        /*
+         * API actuelle :
+         * document.modelContext
+         *
+         * Fallback :
+         * navigator.modelContext
+         */
+
+        return (
+            document.modelContext ||
+            navigator.modelContext ||
+            null
+        );
+    }
+
+
+    /*
+     * ========================================================
+     * OUTIL : GET COURSES
+     * ========================================================
+     *
+     * Exemple de demande à l'IA :
+     *
+     * "Quels sont mes cours actuels ?"
+     *
+     * L'agent peut alors utiliser get_courses.
+     */
+
+    async function registerGetCourses(mc) {
+
+        await mc.registerTool({
+
+            name: "get_courses",
+
+            title: "Voir mes cours",
+
+            description:
+                "Récupère la liste complète et actuelle " +
+                "des cours enregistrés dans le tableau de bord " +
+                "Study webMCP de l'étudiant.",
+
+            inputSchema: {
+
+                type: "object",
+
+                properties: {},
+
+                additionalProperties: false
+
+            },
+
+            annotations: {
+
+                readOnlyHint: true
+
+            },
+
+            execute: async function () {
+
+                /*
+                 * getCourses() est défini dans script.js.
+                 */
+
+                if (typeof window.getCoursesForAI === "function") {
+
+                    return window.getCoursesForAI();
+
+                }
+
+
+                /*
+                 * Sécurité :
+                 * si la fonction n'est pas exposée,
+                 * on lit directement le localStorage.
+                 */
+
+                try {
+
+                    const data =
+                        localStorage.getItem("studyCourses");
+
+                    const courses =
+                        data ? JSON.parse(data) : [];
+
+                    return {
+
+                        success: true,
+
+                        count:
+                            Array.isArray(courses)
+                                ? courses.length
+                                : 0,
+
+                        courses:
+                            Array.isArray(courses)
+                                ? courses
+                                : []
+
+                    };
+
+                } catch (error) {
+
+                    return {
+
+                        success: false,
+
+                        message:
+                            "Impossible de récupérer les cours.",
+
+                        error: String(error)
+
+                    };
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * ========================================================
+     * OUTIL : ADD COURSE
+     * ========================================================
+     *
+     * Exemple :
+     *
+     * "Ajoute un cours de Géographie appelé
+     * Géographie urbaine, niveau Avancé."
+     */
+
+    async function registerAddCourse(mc) {
+
+        await mc.registerTool({
+
+            name: "add_course",
+
+            title: "Ajouter un cours",
+
+            description:
+                "Ajoute un nouveau cours directement dans " +
+                "le tableau de bord Study webMCP. " +
+                "Utilise cet outil lorsqu'un étudiant demande " +
+                "d'ajouter ou d'enregistrer un nouveau cours.",
+
+            inputSchema: {
+
+                type: "object",
+
+                properties: {
+
+                    title: {
+
+                        type: "string",
+
+                        description:
+                            "Titre du cours."
+
+                    },
+
+                    subject: {
+
+                        type: "string",
+
+                        description:
+                            "Matière du cours."
+
+                    },
+
+                    level: {
+
+                        type: "string",
+
+                        description:
+                            "Niveau du cours : Débutant, " +
+                            "Intermédiaire ou Avancé."
+
+                    },
+
+                    description: {
+
+                        type: "string",
+
+                        description:
+                            "Description ou contenu du cours."
+
+                    },
+
+                    examDate: {
+
+                        type: "string",
+
+                        description:
+                            "Date de l'examen au format AAAA-MM-JJ."
+
+                    }
+
+                },
+
+                required: [
+                    "title",
+                    "subject",
+                    "level"
+                ],
+
+                additionalProperties: false
+
+            },
+
+            annotations: {
+
+                readOnlyHint: false
+
+            },
+
+            execute: async function (args) {
+
+                if (
+                    typeof window.addCourseForAI ===
+                    "function"
+                ) {
+
+                    return window.addCourseForAI(args);
+
+                }
+
+
+                return {
+
+                    success: false,
+
+                    message:
+                        "La fonction d'ajout IA n'est pas disponible."
+
+                };
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * ========================================================
+     * OUTIL : GENERATE STUDY PLAN
+     * ========================================================
+     */
+
+    async function registerStudyPlan(mc) {
+
+        await mc.registerTool({
+
+            name: "generate_study_plan",
+
+            title: "Générer le plan d'étude",
+
+            description:
+                "Génère et affiche automatiquement le plan " +
+                "d'étude de l'étudiant à partir de ses cours " +
+                "enregistrés.",
+
+            inputSchema: {
+
+                type: "object",
+
+                properties: {},
+
+                additionalProperties: false
+
+            },
+
+            annotations: {
+
+                readOnlyHint: false
+
+            },
+
+            execute: async function () {
+
+                if (
+                    typeof window.generateStudyPlan ===
+                    "function"
+                ) {
+
+                    window.generateStudyPlan();
+
+                    return {
+
+                        success: true,
+
+                        message:
+                            "Le plan d'étude a été généré " +
+                            "et affiché dans Study webMCP."
+
+                    };
+
+                }
+
+
+                return {
+
+                    success: false,
+
+                    message:
+                        "La fonction de planification " +
+                        "n'est pas disponible."
+
+                };
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * ========================================================
+     * OUTIL : OPEN QUIZ
+     * ========================================================
+     */
+
+    async function registerQuiz(mc) {
+
+        await mc.registerTool({
+
+            name: "open_quiz_interface",
+
+            title: "Ouvrir le quiz",
+
+            description:
+                "Ouvre l'interface de génération de quiz " +
+                "de Study webMCP afin que l'étudiant puisse " +
+                "choisir un cours et commencer un quiz.",
+
+            inputSchema: {
+
+                type: "object",
+
+                properties: {},
+
+                additionalProperties: false
+
+            },
+
+            annotations: {
+
+                readOnlyHint: false
+
+            },
+
+            execute: async function () {
+
+                if (
+                    typeof window.openQuizGenerator ===
+                    "function"
+                ) {
+
+                    window.openQuizGenerator();
+
+                    return {
+
+                        success: true,
+
+                        message:
+                            "L'interface du quiz est ouverte."
+
+                    };
+
+                }
+
+
+                return {
+
+                    success: false,
+
+                    message:
+                        "L'interface du quiz n'est pas disponible."
+
+                };
+
+            }
+
+        });
+
+    }
+
+
+    /*
+     * ========================================================
+     * INITIALISATION WEBMCP
+     * ========================================================
+     */
+
+    async function setupStudyWebMCP() {
+
+        const mc = getModelContext();
+
+
+        /*
+         * Si le navigateur ne supporte pas encore WebMCP,
+         * on ne bloque PAS l'application.
+         */
+
+        if (!mc) {
+
+            console.log(
+                "ℹ️ WebMCP n'est pas disponible " +
+                "dans ce navigateur."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            await registerGetCourses(mc);
+
+            await registerAddCourse(mc);
+
+            await registerStudyPlan(mc);
+
+            await registerQuiz(mc);
+
+
+            console.log(
+                "✅ Study webMCP : outils IA enregistrés."
+            );
+
+
+            /*
+             * Affichage facultatif dans la console.
+             */
+
+            if (typeof mc.getTools === "function") {
+
+                const tools =
+                    await mc.getTools();
+
+                console.log(
+                    "🤖 Outils Study webMCP disponibles :",
+                    tools
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "❌ Erreur lors de l'enregistrement WebMCP :",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+     * ========================================================
+     * ATTENDRE LE CHARGEMENT DE L'APPLICATION
+     * ========================================================
+     */
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                setTimeout(
+                    setupStudyWebMCP,
+                    300
+                );
+
+            }
+        );
+
+    } else {
+
+        setTimeout(
+            setupStudyWebMCP,
+            300
+        );
+
+    }
+
+})();
+
+</script>
 
 </body>
 </html>
+```
