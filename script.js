@@ -1,158 +1,180 @@
-```javascript
 "use strict";
 
-// ==================================================
-// STUDY webMCP
-// Assistant d'étude intelligent
-// ==================================================
+/*
+=========================================================
+ STUDY webMCP
+ Assistant d'étude intelligent
 
-// ==================================================
-// CONFIGURATION
-// ==================================================
+ VERSION : WebMCP + Application complète
 
-const STORAGE_COURSES = "studyCourses";
-const STORAGE_SESSIONS = "studySessions";
-const STORAGE_QUIZZES = "studyQuizzes";
+ Fonctionnalités :
+ - Ajouter un cours
+ - Modifier un cours
+ - Supprimer un cours
+ - Rechercher un cours
+ - Filtrer par matière
+ - Sauvegarder dans localStorage
+ - Restaurer automatiquement les cours
+ - Statistiques
+ - Progression
+ - Plan d'étude
+ - Quiz
+ - WebMCP pour permettre à un agent IA
+   d'interagir avec l'application
+=========================================================
+*/
 
-// ==================================================
-// INITIALISATION
-// ==================================================
 
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("🎓 Study webMCP démarré.");
+/* ======================================================
+   STOCKAGE
+====================================================== */
+
+const COURSES_KEY = "studyCourses";
+const SESSIONS_KEY = "studySessions";
+const QUIZZES_KEY = "studyQuizzes";
+
+
+/* ======================================================
+   DONNÉES
+====================================================== */
+
+let courses = [];
+let studySessions = [];
+let quizzes = [];
+
+
+/* ======================================================
+   INITIALISATION
+====================================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    loadData();
+
     initializeApplication();
+
+    setupWebMCP();
+
 });
 
-function initializeApplication() {
-    initializeButtons();
-    initializeCourseForm();
-    initializeSearch();
 
-    loadCourses();
-    updateStatistics();
-    updateProgress();
+/* ======================================================
+   CHARGEMENT DES DONNÉES
+====================================================== */
 
-    // Initialiser WebMCP après le chargement de l'application
-    setupWebMCP();
-}
+function loadData() {
 
-// ==================================================
-// RÉCUPÉRER LES COURS
-// ==================================================
-
-function getCourses() {
     try {
-        const data = localStorage.getItem(STORAGE_COURSES);
 
-        if (!data) {
-            return [];
+        const savedCourses = localStorage.getItem(COURSES_KEY);
+
+        const savedSessions = localStorage.getItem(SESSIONS_KEY);
+
+        const savedQuizzes = localStorage.getItem(QUIZZES_KEY);
+
+
+        courses = savedCourses
+            ? JSON.parse(savedCourses)
+            : [];
+
+        studySessions = savedSessions
+            ? JSON.parse(savedSessions)
+            : [];
+
+        quizzes = savedQuizzes
+            ? JSON.parse(savedQuizzes)
+            : [];
+
+
+        if (!Array.isArray(courses)) {
+            courses = [];
         }
 
-        const courses = JSON.parse(data);
+        if (!Array.isArray(studySessions)) {
+            studySessions = [];
+        }
 
-        return Array.isArray(courses) ? courses : [];
-
-    } catch (error) {
-
-        console.error(
-            "Erreur lors de la récupération des cours :",
-            error
-        );
-
-        return [];
-    }
-}
-
-// ==================================================
-// SAUVEGARDER LES COURS
-// ==================================================
-
-function saveCourses(courses) {
-    try {
-
-        localStorage.setItem(
-            STORAGE_COURSES,
-            JSON.stringify(courses)
-        );
-
-        return true;
+        if (!Array.isArray(quizzes)) {
+            quizzes = [];
+        }
 
     } catch (error) {
 
         console.error(
-            "Erreur lors de la sauvegarde :",
+            "Erreur lors du chargement des données :",
             error
         );
 
-        alert(
-            "Impossible de sauvegarder les données."
-        );
-
-        return false;
+        courses = [];
+        studySessions = [];
+        quizzes = [];
     }
 }
 
-// ==================================================
-// INITIALISER LES BOUTONS
-// ==================================================
 
-function initializeButtons() {
+/* ======================================================
+   SAUVEGARDE
+====================================================== */
 
-    const startStudyBtn =
-        document.getElementById("startStudyBtn");
+function saveCourses() {
 
-    const addCourseBtn =
-        document.getElementById("addCourseBtn");
+    localStorage.setItem(
+        COURSES_KEY,
+        JSON.stringify(courses)
+    );
+}
 
-    const newCourseBtn =
-        document.getElementById("newCourseBtn");
+
+function saveSessions() {
+
+    localStorage.setItem(
+        SESSIONS_KEY,
+        JSON.stringify(studySessions)
+    );
+}
+
+
+function saveQuizzes() {
+
+    localStorage.setItem(
+        QUIZZES_KEY,
+        JSON.stringify(quizzes)
+    );
+}
+
+
+/* ======================================================
+   INITIALISATION DE L'APPLICATION
+====================================================== */
+
+function initializeApplication() {
+
+    setupCourseForm();
+
+    setupModal();
+
+    renderCourses();
+
+    updateStatistics();
+
+    generateStudyPlan();
+
+    renderProgress();
+
+}
+
+
+/* ======================================================
+   MODALE
+====================================================== */
+
+function setupModal() {
 
     const closeModalBtn =
         document.getElementById("closeModalBtn");
 
     const cancelCourseBtn =
         document.getElementById("cancelCourseBtn");
-
-    const generatePlanBtn =
-        document.getElementById("generatePlanBtn");
-
-    const generateQuizBtn =
-        document.getElementById("generateQuizBtn");
-
-
-    if (startStudyBtn) {
-
-        startStudyBtn.addEventListener(
-            "click",
-            () => {
-
-                document
-                    .getElementById("courses")
-                    ?.scrollIntoView({
-                        behavior: "smooth"
-                    });
-
-            }
-        );
-    }
-
-
-    if (addCourseBtn) {
-
-        addCourseBtn.addEventListener(
-            "click",
-            openAddCourseModal
-        );
-    }
-
-
-    if (newCourseBtn) {
-
-        newCourseBtn.addEventListener(
-            "click",
-            openAddCourseModal
-        );
-    }
 
 
     if (closeModalBtn) {
@@ -171,31 +193,10 @@ function initializeButtons() {
             closeCourseModal
         );
     }
-
-
-    if (generatePlanBtn) {
-
-        generatePlanBtn.addEventListener(
-            "click",
-            generateStudyPlan
-        );
-    }
-
-
-    if (generateQuizBtn) {
-
-        generateQuizBtn.addEventListener(
-            "click",
-            openQuizGenerator
-        );
-    }
 }
 
-// ==================================================
-// MODAL
-// ==================================================
 
-function openAddCourseModal() {
+function openCourseModal(course = null) {
 
     const modal =
         document.getElementById("courseModal");
@@ -207,25 +208,43 @@ function openAddCourseModal() {
         document.getElementById("modalTitle");
 
 
-    if (!modal || !form) {
-        return;
+    if (!modal) return;
+
+
+    if (form) {
+        form.reset();
     }
 
 
-    form.reset();
+    if (course) {
 
+        if (modalTitle) {
+            modalTitle.textContent =
+                "Modifier le cours";
+        }
 
-    const courseId =
-        document.getElementById("courseId");
+        setInputValue("courseId", course.id);
+        setInputValue("courseTitle", course.title);
+        setInputValue("courseSubject", course.subject);
+        setInputValue("courseLevel", course.level);
+        setInputValue(
+            "courseDescription",
+            course.description
+        );
+        setInputValue(
+            "courseExamDate",
+            course.examDate
+        );
 
-    if (courseId) {
-        courseId.value = "";
-    }
+    } else {
 
+        if (modalTitle) {
+            modalTitle.textContent =
+                "Ajouter un cours";
+        }
 
-    if (modalTitle) {
-        modalTitle.textContent =
-            "Ajouter un cours";
+        setInputValue("courseId", "");
+
     }
 
 
@@ -243,1371 +262,818 @@ function closeCourseModal() {
     }
 }
 
-// ==================================================
-// FORMULAIRE COURS
-// ==================================================
 
-function initializeCourseForm() {
+function setInputValue(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+    if (element) {
+        element.value = value || "";
+    }
+}
+
+
+/* ======================================================
+   FORMULAIRE COURS
+====================================================== */
+
+function setupCourseForm() {
 
     const form =
         document.getElementById("courseForm");
 
-    if (form) {
 
-        form.addEventListener(
-            "submit",
-            handleCourseSubmit
-        );
-    }
+    if (!form) return;
+
+
+    form.addEventListener("submit", function (event) {
+
+        event.preventDefault();
+
+        const id =
+            document.getElementById("courseId")?.value.trim();
+
+        const title =
+            document.getElementById("courseTitle")?.value.trim();
+
+        const subject =
+            document.getElementById("courseSubject")?.value.trim();
+
+        const level =
+            document.getElementById("courseLevel")?.value.trim();
+
+        const description =
+            document.getElementById("courseDescription")?.value.trim();
+
+        const examDate =
+            document.getElementById("courseExamDate")?.value;
+
+
+        if (!title || !subject) {
+
+            alert(
+                "Veuillez renseigner au minimum le titre et la matière."
+            );
+
+            return;
+        }
+
+
+        if (id) {
+
+            const index =
+                courses.findIndex(
+                    course => String(course.id) === String(id)
+                );
+
+
+            if (index !== -1) {
+
+                courses[index] = {
+
+                    ...courses[index],
+
+                    title,
+                    subject,
+                    level,
+                    description,
+                    examDate
+
+                };
+            }
+
+        } else {
+
+            const newCourse = {
+
+                id: Date.now().toString(),
+
+                title,
+
+                subject,
+
+                level,
+
+                description,
+
+                examDate,
+
+                progress: 0,
+
+                createdAt:
+                    new Date().toISOString()
+
+            };
+
+
+            courses.push(newCourse);
+        }
+
+
+        saveCourses();
+
+        renderCourses();
+
+        updateStatistics();
+
+        generateStudyPlan();
+
+        renderProgress();
+
+        closeCourseModal();
+
+    });
 }
 
-// ==================================================
-// AJOUT / MODIFICATION
-// ==================================================
 
-function handleCourseSubmit(event) {
+/* ======================================================
+   AJOUTER UN COURS
+====================================================== */
 
-    event.preventDefault();
+function addCourse(title, subject, level, description, examDate) {
 
+    title =
+        String(title || "").trim();
 
-    const id =
-        document.getElementById("courseId")
-            ?.value || "";
+    subject =
+        String(subject || "").trim();
 
+    level =
+        String(level || "").trim();
 
-    const title =
-        document.getElementById("courseTitle")
-            ?.value
-            .trim() || "";
+    description =
+        String(description || "").trim();
 
-
-    const subject =
-        document.getElementById("courseSubject")
-            ?.value
-            .trim() || "";
-
-
-    const level =
-        document.getElementById("courseLevel")
-            ?.value || "";
-
-
-    const description =
-        document.getElementById("courseDescription")
-            ?.value
-            .trim() || "";
-
-
-    const examDate =
-        document.getElementById("courseExamDate")
-            ?.value || "";
+    examDate =
+        String(examDate || "").trim();
 
 
     if (!title) {
-
-        alert(
-            "Veuillez entrer le titre du cours."
+        throw new Error(
+            "Le titre du cours est obligatoire."
         );
-
-        return;
     }
 
 
     if (!subject) {
-
-        alert(
-            "Veuillez entrer la matière."
+        throw new Error(
+            "La matière du cours est obligatoire."
         );
+    }
+
+
+    const newCourse = {
+
+        id: Date.now().toString(),
+
+        title,
+
+        subject,
+
+        level,
+
+        description,
+
+        examDate,
+
+        progress: 0,
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    courses.push(newCourse);
+
+    saveCourses();
+
+    renderCourses();
+
+    updateStatistics();
+
+    generateStudyPlan();
+
+    renderProgress();
+
+
+    return newCourse;
+}
+
+
+/* ======================================================
+   MODIFICATION
+====================================================== */
+
+function editCourse(id) {
+
+    const course =
+        courses.find(
+            item => String(item.id) === String(id)
+        );
+
+
+    if (!course) return;
+
+
+    openCourseModal(course);
+}
+
+
+/* ======================================================
+   SUPPRESSION
+====================================================== */
+
+function deleteCourse(id) {
+
+    const course =
+        courses.find(
+            item => String(item.id) === String(id)
+        );
+
+
+    if (!course) return;
+
+
+    const confirmation =
+        confirm(
+            `Voulez-vous supprimer "${course.title}" ?`
+        );
+
+
+    if (!confirmation) return;
+
+
+    courses =
+        courses.filter(
+            item => String(item.id) !== String(id)
+        );
+
+
+    saveCourses();
+
+    renderCourses();
+
+    updateStatistics();
+
+    generateStudyPlan();
+
+    renderProgress();
+}
+
+
+/* ======================================================
+   AFFICHAGE DES COURS
+====================================================== */
+
+function renderCourses() {
+
+    const courseList =
+        document.getElementById("courseList");
+
+
+    if (!courseList) return;
+
+
+    if (courses.length === 0) {
+
+        courseList.innerHTML = `
+            <div class="empty-state">
+                <p>Aucun cours enregistré.</p>
+            </div>
+        `;
 
         return;
     }
 
 
-    if (!level) {
+    courseList.innerHTML =
+        courses.map(course => {
 
-        alert(
-            "Veuillez sélectionner le niveau."
-        );
-
-        return;
-    }
+            const progress =
+                Number(course.progress || 0);
 
 
-    let courses = getCourses();
+            return `
+
+                <div class="course-card">
+
+                    <div class="course-card-header">
+
+                        <h3>
+                            ${escapeHTML(course.title)}
+                        </h3>
+
+                    </div>
 
 
-    // MODIFICATION
-    if (id) {
-
-        const index =
-            courses.findIndex(
-                course => course.id === id
-            );
+                    <p>
+                        <strong>Matière :</strong>
+                        ${escapeHTML(course.subject)}
+                    </p>
 
 
-        if (index !== -1) {
-
-            courses[index] = {
-
-                ...courses[index],
-
-                title,
-                subject,
-                level,
-                description,
-                examDate,
-
-                updatedAt:
-                    new Date().toISOString()
-            };
-        }
-
-    }
-
-    // AJOUT
-    else {
-
-        const now =
-            new Date().toISOString();
+                    ${
+                        course.level
+                        ? `
+                            <p>
+                                <strong>Niveau :</strong>
+                                ${escapeHTML(course.level)}
+                            </p>
+                        `
+                        : ""
+                    }
 
 
-        const newCourse = {
-
-            id: generateId(),
-
-            title,
-            subject,
-            level,
-            description,
-            examDate,
-
-            progress: 0,
-
-            createdAt: now,
-            updatedAt: now
-        };
+                    ${
+                        course.description
+                        ? `
+                            <p>
+                                ${escapeHTML(course.description)}
+                            </p>
+                        `
+                        : ""
+                    }
 
 
-        courses.push(newCourse);
-    }
+                    ${
+                        course.examDate
+                        ? `
+                            <p>
+                                <strong>Examen :</strong>
+                                ${escapeHTML(course.examDate)}
+                            </p>
+                        `
+                        : ""
+                    }
 
 
-    if (saveCourses(courses)) {
+                    <div class="progress-container">
 
-        closeCourseModal();
+                        <div class="progress-bar">
 
-        loadCourses();
+                            <div
+                                class="progress-fill"
+                                style="width:${progress}%"
+                            ></div>
 
-        updateStatistics();
+                        </div>
 
-        updateProgress();
+                        <span>
+                            ${progress}%
+                        </span>
 
-        alert(
-            "✅ Cours enregistré avec succès !"
-        );
-    }
+                    </div>
+
+
+                    <div class="course-actions">
+
+                        <button
+                            type="button"
+                            onclick="editCourse('${course.id}')"
+                        >
+                            Modifier
+                        </button>
+
+
+                        <button
+                            type="button"
+                            onclick="deleteCourse('${course.id}')"
+                        >
+                            Supprimer
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
 }
 
-// ==================================================
-// IDENTIFIANT UNIQUE
-// ==================================================
 
-function generateId() {
+/* ======================================================
+   RECHERCHE
+====================================================== */
 
-    return (
-        Date.now().toString(36) +
-        Math.random()
-            .toString(36)
-            .substring(2, 9)
-    );
-}
-
-// ==================================================
-// AFFICHER LES COURS
-// ==================================================
-
-function loadCourses() {
-
-    const courses = getCourses();
-
+function searchCourses() {
 
     const searchInput =
-        document.getElementById(
-            "searchCourseInput"
-        );
+        document.getElementById("searchInput");
 
 
-    const filterSubject =
-        document.getElementById(
-            "filterSubject"
-        );
+    if (!searchInput) return;
 
 
-    const searchTerm =
-        searchInput
-            ? searchInput.value
-                .trim()
-                .toLowerCase()
-            : "";
+    const query =
+        searchInput.value
+            .toLowerCase()
+            .trim();
 
 
-    const selectedSubject =
-        filterSubject
-            ? filterSubject.value
-            : "";
+    const courseList =
+        document.getElementById("courseList");
+
+
+    if (!courseList) return;
 
 
     const filteredCourses =
         courses.filter(course => {
 
-            const title =
-                String(
-                    course.title || ""
-                ).toLowerCase();
-
-
-            const subject =
-                String(
-                    course.subject || ""
-                ).toLowerCase();
-
-
-            const description =
-                String(
-                    course.description || ""
-                ).toLowerCase();
-
-
-            const matchesSearch =
-                title.includes(searchTerm) ||
-                subject.includes(searchTerm) ||
-                description.includes(searchTerm);
-
-
-            const matchesSubject =
-                !selectedSubject ||
-                course.subject === selectedSubject;
-
-
             return (
-                matchesSearch &&
-                matchesSubject
+
+                String(course.title || "")
+                    .toLowerCase()
+                    .includes(query)
+
+                ||
+
+                String(course.subject || "")
+                    .toLowerCase()
+                    .includes(query)
+
+                ||
+
+                String(course.description || "")
+                    .toLowerCase()
+                    .includes(query)
+
             );
+
         });
 
 
-    displayCourses(filteredCourses);
+    if (filteredCourses.length === 0) {
 
-    updateSubjectFilter(courses);
-}
-
-// ==================================================
-// AFFICHAGE DES CARTES
-// ==================================================
-
-function displayCourses(courses) {
-
-    const container =
-        document.getElementById(
-            "courseList"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    if (courses.length === 0) {
-
-        container.innerHTML = `
-
-            <div
-                class="empty-state"
-                style="grid-column:1/-1;"
-            >
-
-                <div class="empty-icon">
-                    📖
-                </div>
-
-                <h3>
-                    Aucun cours trouvé
-                </h3>
-
-                <p>
-                    Ajoute un cours pour commencer ton apprentissage.
-                </p>
-
-                <button
-                    class="primary-btn"
-                    type="button"
-                    onclick="openAddCourseModal()"
-                >
-                    + Ajouter un cours
-                </button>
-
+        courseList.innerHTML = `
+            <div class="empty-state">
+                <p>Aucun cours trouvé.</p>
             </div>
-
         `;
 
         return;
     }
 
 
-    container.innerHTML =
-        courses
-            .map(createCourseCard)
-            .join("");
+    courseList.innerHTML =
+        filteredCourses.map(course => {
 
+            return `
 
-    addCourseCardEvents();
-}
+                <div class="course-card">
 
-// ==================================================
-// CARTE D'UN COURS
-// ==================================================
+                    <h3>
+                        ${escapeHTML(course.title)}
+                    </h3>
 
-function createCourseCard(course) {
+                    <p>
+                        <strong>Matière :</strong>
+                        ${escapeHTML(course.subject)}
+                    </p>
 
-    const safeTitle =
-        escapeHTML(course.title);
-
-
-    const safeSubject =
-        escapeHTML(course.subject);
-
-
-    const safeLevel =
-        escapeHTML(course.level);
-
-
-    const safeDescription =
-        escapeHTML(
-            course.description ||
-            "Aucune description."
-        );
-
-
-    const exam =
-        course.examDate
-            ? formatDate(course.examDate)
-            : "Non définie";
-
-
-    const progress =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                Number(course.progress || 0)
-            )
-        );
-
-
-    const safeId =
-        escapeHTML(course.id);
-
-
-    return `
-
-        <article
-            class="stat-card course-card"
-            data-course-id="${safeId}"
-            style="text-align:left; position:relative;"
-        >
-
-            <div
-                style="
-                    display:flex;
-                    justify-content:space-between;
-                    align-items:flex-start;
-                    gap:10px;
-                "
-            >
-
-                <div style="font-size:35px;">
-                    📚
-                </div>
-
-                <span
-                    style="
-                        background:#eef2ff;
-                        color:#4f46e5;
-                        padding:5px 9px;
-                        border-radius:20px;
-                        font-size:11px;
-                        font-weight:bold;
-                    "
-                >
-                    ${safeLevel}
-                </span>
-
-            </div>
-
-
-            <h3
-                style="
-                    margin-top:15px;
-                    font-size:20px;
-                "
-            >
-                ${safeTitle}
-            </h3>
-
-
-            <p
-                style="
-                    color:#4f46e5;
-                    font-weight:bold;
-                    margin-top:5px;
-                "
-            >
-                ${safeSubject}
-            </p>
-
-
-            <p
-                style="
-                    color:#64748b;
-                    font-size:14px;
-                    margin-top:10px;
-                    min-height:45px;
-                "
-            >
-                ${safeDescription}
-            </p>
-
-
-            <div
-                style="
-                    margin-top:18px;
-                    padding-top:15px;
-                    border-top:1px solid #eef2f7;
-                "
-            >
-
-                <div
-                    style="
-                        display:flex;
-                        justify-content:space-between;
-                        font-size:12px;
-                        margin-bottom:7px;
-                    "
-                >
-
-                    <span>
-                        Progression
-                    </span>
-
-                    <strong>
-                        ${progress}%
-                    </strong>
+                    <p>
+                        ${escapeHTML(
+                            course.description || ""
+                        )}
+                    </p>
 
                 </div>
+            `;
+
+        }).join("");
+}
 
 
-                <div
-                    style="
-                        height:8px;
-                        background:#e5e7eb;
-                        border-radius:20px;
-                        overflow:hidden;
-                    "
-                >
+/* ======================================================
+   FILTRE
+====================================================== */
 
-                    <div
-                        style="
-                            width:${progress}%;
-                            height:100%;
-                            background:#4f46e5;
-                        "
-                    ></div>
+function filterCourses() {
 
-                </div>
+    const filter =
+        document.getElementById("subjectFilter");
+
+
+    if (!filter) return;
+
+
+    const value =
+        filter.value.toLowerCase();
+
+
+    const courseList =
+        document.getElementById("courseList");
+
+
+    if (!courseList) return;
+
+
+    const filtered =
+        value === "all"
+        ? courses
+        : courses.filter(
+            course =>
+                String(course.subject || "")
+                    .toLowerCase() === value
+        );
+
+
+    if (filtered.length === 0) {
+
+        courseList.innerHTML = `
+            <div class="empty-state">
+                <p>Aucun cours trouvé.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    courseList.innerHTML =
+        filtered.map(course => `
+
+            <div class="course-card">
+
+                <h3>
+                    ${escapeHTML(course.title)}
+                </h3>
+
+                <p>
+                    ${escapeHTML(course.subject)}
+                </p>
+
+                <p>
+                    ${escapeHTML(
+                        course.description || ""
+                    )}
+                </p>
 
             </div>
 
-
-            <div
-                style="
-                    margin-top:15px;
-                    font-size:12px;
-                    color:#64748b;
-                "
-            >
-                📅 Examen :
-                <strong>
-                    ${exam}
-                </strong>
-            </div>
-
-
-            <div
-                style="
-                    display:flex;
-                    gap:8px;
-                    margin-top:18px;
-                "
-            >
-
-                <button
-                    class="secondary-btn edit-course-btn"
-                    data-id="${safeId}"
-                    type="button"
-                    style="flex:1;"
-                >
-                    ✏️ Modifier
-                </button>
-
-
-                <button
-                    class="delete-course-btn"
-                    data-id="${safeId}"
-                    type="button"
-                    style="
-                        flex:1;
-                        border:none;
-                        padding:10px;
-                        border-radius:10px;
-                        cursor:pointer;
-                        background:#fee2e2;
-                        color:#b91c1c;
-                        font-weight:bold;
-                    "
-                >
-                    🗑️ Supprimer
-                </button>
-
-            </div>
-
-        </article>
-
-    `;
+        `).join("");
 }
 
-// ==================================================
-// ÉVÉNEMENTS DES CARTES
-// ==================================================
 
-function addCourseCardEvents() {
-
-    const editButtons =
-        document.querySelectorAll(
-            ".edit-course-btn"
-        );
-
-
-    const deleteButtons =
-        document.querySelectorAll(
-            ".delete-course-btn"
-        );
-
-
-    editButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-                editCourse(
-                    button.dataset.id
-                );
-            }
-        );
-    });
-
-
-    deleteButtons.forEach(button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-                deleteCourse(
-                    button.dataset.id
-                );
-            }
-        );
-    });
-}
-
-// ==================================================
-// MODIFIER UN COURS
-// ==================================================
-
-function editCourse(id) {
-
-    const courses =
-        getCourses();
-
-
-    const course =
-        courses.find(
-            item => item.id === id
-        );
-
-
-    if (!course) {
-
-        alert(
-            "Cours introuvable."
-        );
-
-        return;
-    }
-
-
-    document.getElementById(
-        "courseId"
-    ).value = course.id;
-
-
-    document.getElementById(
-        "courseTitle"
-    ).value = course.title;
-
-
-    document.getElementById(
-        "courseSubject"
-    ).value = course.subject;
-
-
-    document.getElementById(
-        "courseLevel"
-    ).value = course.level;
-
-
-    document.getElementById(
-        "courseDescription"
-    ).value =
-        course.description || "";
-
-
-    document.getElementById(
-        "courseExamDate"
-    ).value =
-        course.examDate || "";
-
-
-    document.getElementById(
-        "modalTitle"
-    ).textContent =
-        "Modifier le cours";
-
-
-    document.getElementById(
-        "courseModal"
-    ).style.display = "flex";
-}
-
-// ==================================================
-// SUPPRIMER UN COURS
-// ==================================================
-
-function deleteCourse(id) {
-
-    const courses =
-        getCourses();
-
-
-    const course =
-        courses.find(
-            item => item.id === id
-        );
-
-
-    if (!course) {
-        return;
-    }
-
-
-    if (
-        !confirm(
-            `Voulez-vous vraiment supprimer le cours "${course.title}" ?`
-        )
-    ) {
-        return;
-    }
-
-
-    const updatedCourses =
-        courses.filter(
-            item => item.id !== id
-        );
-
-
-    if (saveCourses(updatedCourses)) {
-
-        loadCourses();
-
-        updateStatistics();
-
-        updateProgress();
-
-        alert(
-            "🗑️ Cours supprimé."
-        );
-    }
-}
-
-// ==================================================
-// RECHERCHE
-// ==================================================
-
-function initializeSearch() {
-
-    const searchInput =
-        document.getElementById(
-            "searchCourseInput"
-        );
-
-
-    const filterSubject =
-        document.getElementById(
-            "filterSubject"
-        );
-
-
-    if (searchInput) {
-
-        searchInput.addEventListener(
-            "input",
-            loadCourses
-        );
-    }
-
-
-    if (filterSubject) {
-
-        filterSubject.addEventListener(
-            "change",
-            loadCourses
-        );
-    }
-}
-
-// ==================================================
-// FILTRE DES MATIÈRES
-// ==================================================
-
-function updateSubjectFilter(courses) {
-
-    const select =
-        document.getElementById(
-            "filterSubject"
-        );
-
-
-    if (!select) {
-        return;
-    }
-
-
-    const currentValue =
-        select.value;
-
-
-    const subjects =
-        [
-            ...new Set(
-                courses
-                    .map(
-                        course => course.subject
-                    )
-                    .filter(Boolean)
-            )
-        ]
-        .sort(
-            (a, b) =>
-                a.localeCompare(
-                    b,
-                    "fr"
-                )
-        );
-
-
-    select.innerHTML =
-        `<option value="">
-            Toutes les matières
-        </option>`;
-
-
-    subjects.forEach(subject => {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-        option.value =
-            subject;
-
-
-        option.textContent =
-            subject;
-
-
-        select.appendChild(option);
-    });
-
-
-    if (
-        subjects.includes(
-            currentValue
-        )
-    ) {
-
-        select.value =
-            currentValue;
-    }
-}
-
-// ==================================================
-// STATISTIQUES
-// ==================================================
+/* ======================================================
+   STATISTIQUES
+====================================================== */
 
 function updateStatistics() {
 
-    const courses =
-        getCourses();
+    const totalCourses =
+        courses.length;
 
 
-    const sessions =
-        getStorageArray(
-            STORAGE_SESSIONS
-        );
+    const completedCourses =
+        courses.filter(
+            course =>
+                Number(course.progress || 0) >= 100
+        ).length;
 
 
-    const quizzes =
-        getStorageArray(
-            STORAGE_QUIZZES
-        );
+    const averageProgress =
+        totalCourses === 0
 
+        ? 0
 
-    const courseCount =
-        document.getElementById(
-            "courseCount"
-        );
-
-
-    const studySessions =
-        document.getElementById(
-            "studySessions"
-        );
-
-
-    const quizCount =
-        document.getElementById(
-            "quizCount"
-        );
-
-
-    if (courseCount) {
-
-        courseCount.textContent =
-            courses.length;
-    }
-
-
-    if (studySessions) {
-
-        studySessions.textContent =
-            sessions.length;
-    }
-
-
-    if (quizCount) {
-
-        quizCount.textContent =
-            quizzes.length;
-    }
-
-
-    updateProgress();
-}
-
-// ==================================================
-// LOCALSTORAGE TABLEAU
-// ==================================================
-
-function getStorageArray(key) {
-
-    try {
-
-        const data =
-            localStorage.getItem(key);
-
-
-        if (!data) {
-            return [];
-        }
-
-
-        const parsed =
-            JSON.parse(data);
-
-
-        return Array.isArray(parsed)
-            ? parsed
-            : [];
-
-    } catch (error) {
-
-        console.error(
-            `Erreur localStorage (${key}) :`,
-            error
-        );
-
-        return [];
-    }
-}
-
-// ==================================================
-// PROGRESSION
-// ==================================================
-
-function updateProgress() {
-
-    const courses =
-        getCourses();
-
-
-    let progress = 0;
-
-
-    if (courses.length > 0) {
-
-        const total =
+        : Math.round(
             courses.reduce(
-                (sum, course) => {
-
-                    return (
-                        sum +
-                        Math.max(
-                            0,
-                            Math.min(
-                                100,
-                                Number(
-                                    course.progress || 0
-                                )
-                            )
-                        )
-                    );
-
-                },
+                (sum, course) =>
+                    sum +
+                    Number(course.progress || 0),
                 0
-            );
-
-
-        progress =
-            Math.round(
-                total / courses.length
-            );
-    }
-
-
-    const progressValue =
-        document.getElementById(
-            "progressValue"
+            ) / totalCourses
         );
 
 
-    const progressText =
-        document.getElementById(
-            "progressText"
-        );
+    updateElement(
+        "totalCourses",
+        totalCourses
+    );
 
+    updateElement(
+        "completedCourses",
+        completedCourses
+    );
 
-    const progressBar =
-        document.getElementById(
-            "progressBar"
-        );
+    updateElement(
+        "averageProgress",
+        `${averageProgress}%`
+    );
 
-
-    if (progressValue) {
-
-        progressValue.textContent =
-            `${progress}%`;
-    }
-
-
-    if (progressText) {
-
-        progressText.textContent =
-            `${progress}%`;
-    }
-
-
-    if (progressBar) {
-
-        progressBar.style.width =
-            `${progress}%`;
-    }
 }
 
-// ==================================================
-// PLAN D'ÉTUDE
-// ==================================================
+
+/* ======================================================
+   PLAN D'ÉTUDE
+====================================================== */
 
 function generateStudyPlan() {
 
-    const courses =
-        getCourses();
+    const studyPlan =
+        document.getElementById("studyPlan");
 
 
-    const container =
-        document.getElementById(
-            "studyPlan"
-        );
+    if (!studyPlan) {
 
-
-    if (!container) {
-        return;
+        return getStudyPlanData();
     }
 
 
-    if (courses.length === 0) {
+    const plan =
+        getStudyPlanData();
 
-        alert(
-            "📚 Ajoute d'abord au moins un cours."
-        );
 
-        return;
+    if (plan.length === 0) {
+
+        studyPlan.innerHTML = `
+            <div class="empty-state">
+                <p>
+                    Aucun cours avec une date d'examen.
+                </p>
+            </div>
+        `;
+
+        return plan;
     }
 
 
-    const sortedCourses =
-        [...courses].sort(
-            (a, b) => {
+    studyPlan.innerHTML =
+        plan.map(course => `
 
-                if (!a.examDate) {
-                    return 1;
-                }
+            <div class="study-plan-item">
 
-                if (!b.examDate) {
-                    return -1;
-                }
+                <h3>
+                    ${escapeHTML(course.title)}
+                </h3>
 
-                return (
-                    new Date(a.examDate) -
-                    new Date(b.examDate)
-                );
-            }
+                <p>
+                    ${escapeHTML(course.subject)}
+                </p>
+
+                <p>
+                    Examen :
+                    ${escapeHTML(course.examDate)}
+                </p>
+
+            </div>
+
+        `).join("");
+
+
+    return plan;
+}
+
+
+function getStudyPlanData() {
+
+    return [...courses]
+
+        .filter(
+            course => course.examDate
+        )
+
+        .sort(
+            (a, b) =>
+                new Date(a.examDate) -
+                new Date(b.examDate)
+        );
+}
+
+
+/* ======================================================
+   PROGRESSION
+====================================================== */
+
+function renderProgress() {
+
+    const progressSection =
+        document.getElementById("progressSection");
+
+
+    if (!progressSection) return;
+
+
+    const total =
+        courses.length;
+
+
+    const average =
+        total === 0
+
+        ? 0
+
+        : Math.round(
+            courses.reduce(
+                (sum, course) =>
+                    sum +
+                    Number(course.progress || 0),
+                0
+            ) / total
         );
 
 
-    container.innerHTML = `
+    progressSection.innerHTML = `
 
-        <div
-            style="
-                display:grid;
-                gap:15px;
-            "
-        >
+        <div class="progress-summary">
 
-            ${sortedCourses
-                .map(
-                    (course, index) => `
+            <h3>
+                Progression générale
+            </h3>
 
-                    <div
-                        style="
-                            background:white;
-                            padding:20px;
-                            border-radius:14px;
-                            display:flex;
-                            gap:15px;
-                            align-items:center;
-                            box-shadow:0 5px 20px rgba(0,0,0,0.05);
-                        "
-                    >
+            <div class="progress-bar">
 
-                        <div
-                            style="
-                                width:45px;
-                                height:45px;
-                                flex-shrink:0;
-                                border-radius:50%;
-                                background:#eef2ff;
-                                display:flex;
-                                align-items:center;
-                                justify-content:center;
-                                font-weight:bold;
-                                color:#4f46e5;
-                            "
-                        >
-                            ${index + 1}
-                        </div>
+                <div
+                    class="progress-fill"
+                    style="width:${average}%"
+                ></div>
 
+            </div>
 
-                        <div>
-
-                            <strong>
-                                ${escapeHTML(
-                                    course.title
-                                )}
-                            </strong>
-
-
-                            <p
-                                style="
-                                    color:#64748b;
-                                    font-size:13px;
-                                    margin-top:3px;
-                                "
-                            >
-
-                                ${escapeHTML(
-                                    course.subject
-                                )}
-
-                                ${
-                                    course.examDate
-                                        ? ` — Examen le ${formatDate(
-                                              course.examDate
-                                          )}`
-                                        : ""
-                                }
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                `
-                )
-                .join("")}
+            <p>
+                ${average}% terminé
+            </p>
 
         </div>
 
     `;
 }
 
-// ==================================================
-// QUIZ — OUVRIR LE GÉNÉRATEUR
-// ==================================================
+
+/* ======================================================
+   QUIZ
+====================================================== */
 
 function openQuizGenerator() {
 
-    const courses =
-        getCourses();
+    const quizContainer =
+        document.getElementById("quizContainer");
 
 
-    const container =
-        document.getElementById(
-            "quizContainer"
-        );
-
-
-    if (!container) {
-        return;
-    }
+    if (!quizContainer) return;
 
 
     if (courses.length === 0) {
 
-        container.innerHTML = `
+        quizContainer.innerHTML = `
 
             <div class="empty-state">
 
-                <div class="empty-icon">
-                    📚
-                </div>
-
-                <h3>
-                    Aucun cours disponible
-                </h3>
-
                 <p>
-                    Ajoute d'abord un cours pour créer un quiz.
+                    Ajoutez d'abord un cours
+                    pour générer un quiz.
                 </p>
 
-                <button
-                    class="primary-btn"
-                    type="button"
-                    onclick="openAddCourseModal()"
-                    style="margin-top:15px;"
-                >
-                    + Ajouter un cours
-                </button>
-
             </div>
-
         `;
 
         return;
     }
 
 
-    container.innerHTML = `
+    quizContainer.innerHTML = `
 
-        <div
-            style="
-                background:white;
-                padding:30px;
-                border-radius:18px;
-                box-shadow:0 8px 30px rgba(0,0,0,0.06);
-            "
-        >
+        <div class="quiz-generator">
 
-            <h3 style="margin-bottom:10px;">
-                🧠 Créer un quiz
+            <h3>
+                Générateur de quiz
             </h3>
 
-
-            <p
-                style="
-                    color:#64748b;
-                    margin-bottom:20px;
-                "
-            >
-                Sélectionne le cours sur lequel tu veux être évalué.
+            <p>
+                Choisissez un cours :
             </p>
 
+            <select id="quizCourseSelect">
 
-            <select
-                id="quizCourseSelect"
-                style="
-                    width:100%;
-                    padding:13px;
-                    border:1px solid #dbe1ea;
-                    border-radius:10px;
-                    background:white;
-                    margin-bottom:15px;
-                "
-            >
+                ${courses.map(course => `
 
-                <option value="">
-                    Sélectionner un cours
-                </option>
+                    <option value="${course.id}">
 
-                ${courses
-                    .map(
-                        course =>
-                            `
-                            <option value="${escapeHTML(
-                                course.id
-                            )}">
-                                ${escapeHTML(
-                                    course.title
-                                )}
-                                —
-                                ${escapeHTML(
-                                    course.subject
-                                )}
-                            </option>
-                            `
-                    )
-                    .join("")}
+                        ${escapeHTML(course.title)}
+
+                    </option>
+
+                `).join("")}
 
             </select>
 
 
-            <div
-                style="
-                    display:flex;
-                    gap:10px;
-                    flex-wrap:wrap;
-                "
+            <button
+                type="button"
+                onclick="generateQuiz()"
             >
-
-                <button
-                    id="startQuizBtn"
-                    class="primary-btn"
-                    type="button"
-                >
-                    🚀 Commencer le quiz
-                </button>
-
-
-                <button
-                    id="cancelQuizBtn"
-                    class="secondary-btn"
-                    type="button"
-                >
-                    Annuler
-                </button>
-
-            </div>
+                Générer le quiz
+            </button>
 
         </div>
-
-    `;
-
-
-    const startQuizBtn =
-        document.getElementById(
-            "startQuizBtn"
-        );
-
-
-    const cancelQuizBtn =
-        document.getElementById(
-            "cancelQuizBtn"
-        );
-
-
-    if (startQuizBtn) {
-
-        startQuizBtn.addEventListener(
-            "click",
-            startQuiz
-        );
-    }
-
-
-    if (cancelQuizBtn) {
-
-        cancelQuizBtn.addEventListener(
-            "click",
-            resetQuizContainer
-        );
-    }
-}
-
-// ==================================================
-// RÉINITIALISER LE QUIZ
-// ==================================================
-
-function resetQuizContainer() {
-
-    const container =
-        document.getElementById(
-            "quizContainer"
-        );
-
-
-    if (!container) {
-        return;
-    }
-
-
-    container.innerHTML = `
-
-        <div class="empty-state">
-
-            <div class="empty-icon">
-                🧠
-            </div>
-
-            <h3>
-                Teste tes connaissances
-            </h3>
-
-            <p>
-                Clique sur « Générer un quiz » pour commencer.
-            </p>
-
-        </div>
-
     `;
 }
 
-// ==================================================
-// DÉMARRER LE QUIZ
-// ==================================================
 
-function startQuiz() {
+function generateQuiz() {
 
     const select =
         document.getElementById(
@@ -1615,364 +1081,173 @@ function startQuiz() {
         );
 
 
-    if (!select || !select.value) {
-
-        alert(
-            "⚠️ Sélectionne d'abord un cours."
-        );
-
-        return;
-    }
-
-
-    const courses =
-        getCourses();
+    if (!select) return;
 
 
     const course =
         courses.find(
             item =>
-                item.id === select.value
+                String(item.id) ===
+                String(select.value)
         );
 
 
-    if (!course) {
-
-        alert(
-            "❌ Cours introuvable."
-        );
-
-        return;
-    }
+    if (!course) return;
 
 
     const questions =
-        generateQuizQuestions(
-            course
-        );
+        generateQuizQuestions(course);
 
 
-    displayQuiz(
-        course,
-        questions
-    );
+    const quiz = {
+
+        id: Date.now().toString(),
+
+        courseId: course.id,
+
+        courseTitle: course.title,
+
+        questions,
+
+        score: null,
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    quizzes.push(quiz);
+
+    saveQuizzes();
+
+    displayQuiz(quiz);
 }
 
-// ==================================================
-// GÉNÉRER LES QUESTIONS
-// ==================================================
 
 function generateQuizQuestions(course) {
 
-    const questions = [];
+    const questions = [
 
-
-    questions.push({
-
-        question:
-            "Quel est le titre du cours étudié ?",
-
-        answers: [
-
-            course.title,
-
-            course.subject,
-
-            "Aucun titre",
-
-            "Cours général"
-        ],
-
-        correct: 0
-    });
-
-
-    questions.push({
-
-        question:
-            "À quelle matière appartient ce cours ?",
-
-        answers: [
-
-            course.subject,
-
-            "Mathématiques",
-
-            "Informatique",
-
-            "Histoire"
-        ],
-
-        correct: 0
-    });
-
-
-    if (course.level) {
-
-        questions.push({
-
+        {
             question:
-                "Quel est le niveau indiqué pour ce cours ?",
+                `Quel est le thème principal du cours "${course.title}" ?`,
 
-            answers: [
+            options: [
 
-                course.level,
+                course.subject,
 
-                "Débutant",
+                "Aucune réponse",
 
-                "Intermédiaire",
+                "Un autre sujet",
 
-                "Avancé"
+                "Sujet inconnu"
+
             ],
 
-            correct: 0
-        });
-    }
+            answer: 0
+        },
 
-
-    if (course.examDate) {
-
-        questions.push({
-
+        {
             question:
-                "Une date d'examen est-elle définie pour ce cours ?",
+                "Quel élément faut-il retenir de ce cours ?",
 
-            answers: [
+            options: [
 
-                "Oui",
+                course.description ||
+                "Les notions principales",
 
-                "Non",
+                "Rien",
 
-                "Je ne sais pas",
+                "Un sujet différent",
 
-                "Aucune information"
+                "Une information inconnue"
+
             ],
 
-            correct: 0
-        });
-    }
-
-
-    const description =
-        String(
-            course.description || ""
-        ).trim();
-
-
-    if (description) {
-
-        const words =
-            description
-                .split(/\s+/)
-                .map(
-                    word =>
-                        word.replace(
-                            /[.,;:!?()[\]{}"']/g,
-                            ""
-                        )
-                )
-                .filter(
-                    word =>
-                        word.length > 4
-                );
-
-
-        const uniqueWords =
-            [
-                ...new Set(words)
-            ];
-
-
-        if (uniqueWords.length > 0) {
-
-            const word =
-                uniqueWords[0];
-
-
-            questions.push({
-
-                question:
-                    `Le contenu du cours contient notamment le terme « ${word} ». Lequel est présent dans le contenu ?`,
-
-                answers: [
-
-                    word,
-
-                    "Inconnu",
-
-                    "Sans rapport",
-
-                    "Aucune réponse"
-                ],
-
-                correct: 0
-            });
+            answer: 0
         }
-    }
+
+    ];
 
 
-    return questions.slice(0, 5);
+    return questions;
 }
 
-// ==================================================
-// AFFICHER LE QUIZ
-// ==================================================
 
-function displayQuiz(
-    course,
-    questions
-) {
+function displayQuiz(quiz) {
 
-    const container =
+    const quizContainer =
         document.getElementById(
             "quizContainer"
         );
 
 
-    if (!container) {
-        return;
-    }
+    if (!quizContainer) return;
 
 
-    container.innerHTML = `
+    quizContainer.innerHTML = `
 
-        <div
-            style="
-                background:white;
-                padding:30px;
-                border-radius:18px;
-                box-shadow:0 8px 30px rgba(0,0,0,0.06);
-            "
-        >
+        <div class="quiz">
 
-            <div
-                style="
-                    display:flex;
-                    justify-content:space-between;
-                    gap:15px;
-                    flex-wrap:wrap;
-                    margin-bottom:25px;
-                "
-            >
-
-                <div>
-
-                    <p
-                        style="
-                            color:#4f46e5;
-                            font-size:12px;
-                            font-weight:bold;
-                        "
-                    >
-                        🧠 QUIZ
-                    </p>
-
-
-                    <h3>
-                        ${escapeHTML(
-                            course.title
-                        )}
-                    </h3>
-
-                </div>
-
-
-                <span
-                    style="
-                        background:#eef2ff;
-                        color:#4f46e5;
-                        padding:7px 12px;
-                        border-radius:20px;
-                        font-weight:bold;
-                        font-size:13px;
-                    "
-                >
-                    ${questions.length}
-                    questions
-                </span>
-
-            </div>
+            <h3>
+                Quiz : ${escapeHTML(
+                    quiz.courseTitle
+                )}
+            </h3>
 
 
             <form id="quizForm">
 
-                ${questions
-                    .map(
-                        (question, index) => `
+                ${quiz.questions.map(
+                    (question, index) => `
 
-                        <div
-                            style="
-                                padding:20px;
-                                border:1px solid #e5e7eb;
-                                border-radius:14px;
-                                margin-bottom:18px;
-                            "
-                        >
+                    <div class="quiz-question">
 
-                            <h4
-                                style="
-                                    margin-bottom:15px;
-                                "
-                            >
+                        <p>
+                            <strong>
                                 ${index + 1}.
                                 ${escapeHTML(
                                     question.question
                                 )}
-                            </h4>
+                            </strong>
+                        </p>
 
 
-                            ${question.answers
-                                .map(
-                                    (
-                                        answer,
-                                        answerIndex
-                                    ) => `
+                        ${question.options.map(
+                            (option, optionIndex) => `
 
-                                    <label
-                                        style="
-                                            display:block;
-                                            padding:11px;
-                                            margin-bottom:8px;
-                                            border:1px solid #e5e7eb;
-                                            border-radius:10px;
-                                            cursor:pointer;
-                                        "
-                                    >
+                            <label>
 
-                                        <input
-                                            type="radio"
-                                            name="question-${index}"
-                                            value="${answerIndex}"
-                                        >
+                                <input
+                                    type="radio"
+                                    name="question-${index}"
+                                    value="${optionIndex}"
+                                >
 
-                                        ${escapeHTML(
-                                            answer
-                                        )}
+                                ${escapeHTML(option)}
 
-                                    </label>
+                            </label>
 
-                                `
-                                )
-                                .join("")}
+                        `).join("")}
 
-                        </div>
+                    </div>
 
-                    `
-                    )
-                    .join("")}
+                `
+                ).join("")}
 
 
-                <button
-                    type="submit"
-                    class="primary-btn"
-                >
-                    ✅ Terminer le quiz
+                <button type="submit">
+
+                    Corriger le quiz
+
                 </button>
 
             </form>
 
-        </div>
+            <div id="quizResult"></div>
 
+        </div>
     `;
 
 
@@ -1986,39 +1261,30 @@ function displayQuiz(
 
         form.addEventListener(
             "submit",
-            event => {
+            function (event) {
 
                 event.preventDefault();
 
-
                 calculateQuizResult(
-                    course,
-                    questions,
-                    form
+                    quiz
                 );
+
             }
         );
     }
 }
 
-// ==================================================
-// CALCUL DU SCORE
-// ==================================================
 
-function calculateQuizResult(
-    course,
-    questions,
-    form
-) {
+function calculateQuizResult(quiz) {
 
     let score = 0;
 
 
-    questions.forEach(
+    quiz.questions.forEach(
         (question, index) => {
 
             const selected =
-                form.querySelector(
+                document.querySelector(
                     `input[name="question-${index}"]:checked`
                 );
 
@@ -2026,573 +1292,159 @@ function calculateQuizResult(
             if (
                 selected &&
                 Number(selected.value) ===
-                    question.correct
+                Number(question.answer)
             ) {
 
                 score++;
+
             }
+
         }
     );
 
 
     const percentage =
-        Math.round(
-            (score / questions.length) *
+        quiz.questions.length === 0
+
+        ? 0
+
+        : Math.round(
+            (score / quiz.questions.length) *
             100
         );
 
 
-    saveQuizResult(
-        course,
-        score,
-        questions.length,
-        percentage
-    );
+    quiz.score = percentage;
+
+    saveQuizzes();
 
 
-    displayQuizResult(
-        course,
-        score,
-        questions.length,
-        percentage
-    );
-
-
-    updateStatistics();
-}
-
-// ==================================================
-// SAUVEGARDER LE RÉSULTAT
-// ==================================================
-
-function saveQuizResult(
-    course,
-    score,
-    total,
-    percentage
-) {
-
-    const quizzes =
-        getStorageArray(
-            STORAGE_QUIZZES
-        );
-
-
-    quizzes.push({
-
-        id: generateId(),
-
-        courseId:
-            course.id,
-
-        courseTitle:
-            course.title,
-
-        score,
-        total,
-        percentage,
-
-        date:
-            new Date().toISOString()
-    });
-
-
-    try {
-
-        localStorage.setItem(
-            STORAGE_QUIZZES,
-            JSON.stringify(quizzes)
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Erreur lors de l'enregistrement du quiz :",
-            error
-        );
-    }
-}
-
-// ==================================================
-// AFFICHER LE RÉSULTAT
-// ==================================================
-
-function displayQuizResult(
-    course,
-    score,
-    total,
-    percentage
-) {
-
-    const container =
+    const result =
         document.getElementById(
-            "quizContainer"
+            "quizResult"
         );
 
 
-    if (!container) {
-        return;
-    }
+    if (result) {
 
+        result.innerHTML = `
 
-    let message =
-        "📚 Continue tes révisions !";
+            <div class="quiz-result">
 
+                <h3>
+                    Résultat
+                </h3>
 
-    if (percentage >= 80) {
+                <p>
+                    Score :
+                    <strong>
+                        ${score}/${quiz.questions.length}
+                    </strong>
+                </p>
 
-        message =
-            "🎉 Excellent travail !";
-
-    } else if (percentage >= 60) {
-
-        message =
-            "👏 Très bon travail !";
-
-    } else if (percentage >= 40) {
-
-        message =
-            "📖 Encore un petit effort !";
-    }
-
-
-    container.innerHTML = `
-
-        <div
-            class="empty-state"
-            style="
-                border:2px solid #c7d2fe;
-            "
-        >
-
-            <div
-                style="
-                    font-size:60px;
-                    margin-bottom:15px;
-                "
-            >
-                🧠
-            </div>
-
-
-            <h3>
-                ${message}
-            </h3>
-
-
-            <p
-                style="
-                    font-size:20px;
-                    font-weight:bold;
-                    color:#4f46e5;
-                    margin-top:10px;
-                "
-            >
-                ${score} / ${total}
-            </p>
-
-
-            <p>
-                Score : ${percentage}%
-            </p>
-
-
-            <div
-                style="
-                    margin-top:20px;
-                    height:12px;
-                    background:#e5e7eb;
-                    border-radius:20px;
-                    overflow:hidden;
-                "
-            >
-
-                <div
-                    style="
-                        width:${percentage}%;
-                        height:100%;
-                        background:#4f46e5;
-                    "
-                ></div>
+                <p>
+                    ${percentage}%
+                </p>
 
             </div>
-
-
-            <div
-                style="
-                    display:flex;
-                    justify-content:center;
-                    gap:10px;
-                    flex-wrap:wrap;
-                    margin-top:25px;
-                "
-            >
-
-                <button
-                    class="primary-btn"
-                    type="button"
-                    onclick="openQuizGenerator()"
-                >
-                    🔄 Refaire un quiz
-                </button>
-
-
-                <button
-                    class="secondary-btn"
-                    type="button"
-                    onclick="resetQuizContainer()"
-                >
-                    Fermer
-                </button>
-
-            </div>
-
-        </div>
-
-    `;
+        `;
+    }
 }
 
-// ==================================================
-// FORMATAGE DATE
-// ==================================================
 
-function formatDate(dateString) {
+/* ======================================================
+   WEBMCP
+====================================================== */
 
-    if (!dateString) {
-        return "Non définie";
-    }
+/*
+   Cette partie permet à un agent IA compatible
+   WebMCP d'utiliser certaines fonctions du site.
 
-
-    const date =
-        new Date(
-            `${dateString}T00:00:00`
-        );
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return dateString;
-    }
+   IMPORTANT :
+   - aucune clé API n'est nécessaire ici
+   - aucune clé secrète ne doit être placée dans ce fichier
+   - l'IA utilise les outils exposés par la page
+*/
 
 
-    return date.toLocaleDateString(
-        "fr-FR",
-        {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-        }
-    );
-}
+let webMCPInitialized = false;
 
-// ==================================================
-// PROTECTION HTML
-// ==================================================
-
-function escapeHTML(value) {
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-// ==================================================
-// FERMETURE DU MODAL
-// ==================================================
-
-window.addEventListener(
-    "click",
-    event => {
-
-        const modal =
-            document.getElementById(
-                "courseModal"
-            );
-
-
-        if (
-            event.target === modal
-        ) {
-
-            closeCourseModal();
-        }
-    }
-);
-
-// ==================================================
-// EXPOSER LES FONCTIONS
-// ==================================================
-
-window.openAddCourseModal =
-    openAddCourseModal;
-
-window.editCourse =
-    editCourse;
-
-window.deleteCourse =
-    deleteCourse;
-
-window.generateStudyPlan =
-    generateStudyPlan;
-
-window.openQuizGenerator =
-    openQuizGenerator;
-
-window.resetQuizContainer =
-    resetQuizContainer;
-
-// ==================================================
-// 🤖 WEBMCP
-// ==================================================
-// Cette partie expose les fonctions de Study webMCP
-// aux agents compatibles WebMCP.
-//
-// API utilisée :
-// document.modelContext.registerTool()
-// ==================================================
 
 async function setupWebMCP() {
 
-    // Vérifier si WebMCP est disponible
+    if (webMCPInitialized) {
+        return;
+    }
+
+
+    const modelContext =
+        document.modelContext ||
+        navigator.modelContext;
+
+
     if (
-        !document.modelContext ||
-        typeof document.modelContext.registerTool !==
-            "function"
+        !modelContext ||
+        typeof modelContext.registerTool !== "function"
     ) {
 
         console.log(
-            "ℹ️ WebMCP n'est pas disponible dans ce navigateur."
+            "WebMCP n'est pas disponible dans ce navigateur."
         );
 
         return;
     }
 
 
-    console.log(
-        "🤖 WebMCP détecté. Enregistrement des outils..."
-    );
-
-
     try {
 
-        // ==================================================
-        // 📚 OUTIL 1 — LISTER TOUS LES COURS
-        // ==================================================
+        /*
+        ===============================================
+        OUTIL 1 : LIRE LES COURS
+        ===============================================
+        */
 
-        await document.modelContext.registerTool({
+        await modelContext.registerTool({
 
             name: "get_courses",
 
-            title: "Lister les cours",
-
             description:
-                "Récupère tous les cours actuellement enregistrés dans Study webMCP. " +
-                "Utilise cet outil lorsque l'étudiant demande la liste de ses cours, " +
-                "veut savoir quels cours sont enregistrés ou demande ses cours actuels.",
+                "Retourne tous les cours actuellement enregistrés dans Study webMCP.",
 
             inputSchema: {
 
                 type: "object",
 
                 properties: {}
+
             },
 
             annotations: {
 
                 readOnlyHint: true
+
             },
 
-            execute: async () => {
+            execute: async function () {
 
-                const courses =
-                    getCourses();
+                return getCoursesForAI();
 
-
-                return JSON.stringify({
-
-                    success: true,
-
-                    count:
-                        courses.length,
-
-                    courses:
-                        courses
-                });
             }
+
         });
 
 
-        // ==================================================
-        // 🔎 OUTIL 2 — RECHERCHER DES COURS
-        // ==================================================
+        /*
+        ===============================================
+        OUTIL 2 : AJOUTER UN COURS
+        ===============================================
+        */
 
-        await document.modelContext.registerTool({
-
-            name: "search_courses",
-
-            title: "Rechercher des cours",
-
-            description:
-                "Recherche les cours enregistrés par titre, matière ou description. " +
-                "Utilise cet outil lorsqu'un étudiant demande ses cours de géographie, " +
-                "géomatique, histoire ou toute autre matière.",
-
-            inputSchema: {
-
-                type: "object",
-
-                properties: {
-
-                    query: {
-
-                        type: "string",
-
-                        description:
-                            "Mot ou expression à rechercher dans le titre, la matière ou la description."
-                    }
-                },
-
-                required: [
-                    "query"
-                ]
-            },
-
-            annotations: {
-
-                readOnlyHint: true
-            },
-
-            execute: async ({
-                query
-            }) => {
-
-                const courses =
-                    getCourses();
-
-
-                const search =
-                    String(
-                        query || ""
-                    )
-                    .trim()
-                    .toLowerCase();
-
-
-                if (!search) {
-
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Veuillez fournir un terme de recherche."
-                    });
-                }
-
-
-                const results =
-                    courses.filter(
-                        course => {
-
-                            const title =
-                                String(
-                                    course.title ||
-                                    ""
-                                )
-                                .toLowerCase();
-
-
-                            const subject =
-                                String(
-                                    course.subject ||
-                                    ""
-                                )
-                                .toLowerCase();
-
-
-                            const description =
-                                String(
-                                    course.description ||
-                                    ""
-                                )
-                                .toLowerCase();
-
-
-                            return (
-
-                                title.includes(
-                                    search
-                                ) ||
-
-                                subject.includes(
-                                    search
-                                ) ||
-
-                                description.includes(
-                                    search
-                                )
-                            );
-                        }
-                    );
-
-
-                return JSON.stringify({
-
-                    success: true,
-
-                    query:
-                        query,
-
-                    count:
-                        results.length,
-
-                    courses:
-                        results
-                });
-            }
-        });
-
-
-        // ==================================================
-        // ➕ OUTIL 3 — AJOUTER UN COURS
-        // ==================================================
-
-        await document.modelContext.registerTool({
+        await modelContext.registerTool({
 
             name: "add_course",
 
-            title: "Ajouter un cours",
-
             description:
-                "Ajoute un nouveau cours directement dans le tableau de bord Study webMCP. " +
-                "Utilise cet outil lorsqu'un étudiant demande d'ajouter, créer ou enregistrer un cours.",
+                "Ajoute un nouveau cours dans le tableau de bord Study webMCP.",
 
             inputSchema: {
 
@@ -2606,545 +1458,359 @@ async function setupWebMCP() {
 
                         description:
                             "Titre du cours."
-                    },
 
+                    },
 
                     subject: {
 
                         type: "string",
 
                         description:
-                            "Matière du cours."
-                    },
+                            "Matière ou domaine du cours."
 
+                    },
 
                     level: {
 
                         type: "string",
 
                         description:
-                            "Niveau de l'étudiant."
-                    },
+                            "Niveau d'étude du cours."
 
+                    },
 
                     description: {
 
                         type: "string",
 
                         description:
-                            "Description du cours. Facultatif."
-                    },
+                            "Description du cours."
 
+                    },
 
                     examDate: {
 
                         type: "string",
 
                         description:
-                            "Date d'examen au format YYYY-MM-DD. Facultatif."
+                            "Date de l'examen au format YYYY-MM-DD."
+
                     }
+
                 },
 
                 required: [
+
                     "title",
-                    "subject",
-                    "level"
+
+                    "subject"
+
                 ]
+
             },
 
             annotations: {
 
                 readOnlyHint: false
+
             },
 
-            execute: async ({
-                title,
-                subject,
-                level,
-                description,
-                examDate
-            }) => {
+            execute: async function (args) {
 
-                if (
-                    !title ||
-                    !subject ||
-                    !level
-                ) {
+                return addCourseForAI(args);
 
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Le titre, la matière et le niveau sont obligatoires."
-                    });
-                }
-
-
-                const courses =
-                    getCourses();
-
-
-                const now =
-                    new Date()
-                        .toISOString();
-
-
-                const newCourse = {
-
-                    id:
-                        generateId(),
-
-                    title:
-                        String(
-                            title
-                        ).trim(),
-
-                    subject:
-                        String(
-                            subject
-                        ).trim(),
-
-                    level:
-                        String(
-                            level
-                        ).trim(),
-
-                    description:
-                        String(
-                            description || ""
-                        ).trim(),
-
-                    examDate:
-                        String(
-                            examDate || ""
-                        ).trim(),
-
-                    progress: 0,
-
-                    createdAt:
-                        now,
-
-                    updatedAt:
-                        now
-                };
-
-
-                courses.push(
-                    newCourse
-                );
-
-
-                const saved =
-                    saveCourses(
-                        courses
-                    );
-
-
-                if (!saved) {
-
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Impossible de sauvegarder le cours."
-                    });
-                }
-
-
-                // Actualiser l'interface
-                loadCourses();
-
-                updateStatistics();
-
-                updateProgress();
-
-
-                return JSON.stringify({
-
-                    success: true,
-
-                    message:
-                        `Le cours "${newCourse.title}" a été ajouté avec succès.`,
-
-                    course:
-                        newCourse
-                });
             }
+
         });
 
 
-        // ==================================================
-        // 📈 OUTIL 4 — MODIFIER LA PROGRESSION
-        // ==================================================
+        /*
+        ===============================================
+        OUTIL 3 : PLAN D'ÉTUDE
+        ===============================================
+        */
 
-        await document.modelContext.registerTool({
+        await modelContext.registerTool({
 
-            name:
-                "update_course_progress",
-
-            title:
-                "Modifier la progression",
+            name: "generate_study_plan",
 
             description:
-                "Modifie la progression d'un cours existant entre 0 et 100.",
-
-            inputSchema: {
-
-                type: "object",
-
-                properties: {
-
-                    courseId: {
-
-                        type: "string",
-
-                        description:
-                            "Identifiant du cours."
-                    },
-
-
-                    progress: {
-
-                        type: "number",
-
-                        description:
-                            "Nouvelle progression entre 0 et 100."
-                    }
-                },
-
-                required: [
-                    "courseId",
-                    "progress"
-                ]
-            },
-
-            annotations: {
-
-                readOnlyHint: false
-            },
-
-            execute: async ({
-                courseId,
-                progress
-            }) => {
-
-                const courses =
-                    getCourses();
-
-
-                const course =
-                    courses.find(
-                        item =>
-                            item.id ===
-                            courseId
-                    );
-
-
-                if (!course) {
-
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Cours introuvable."
-                    });
-                }
-
-
-                const newProgress =
-                    Math.max(
-                        0,
-                        Math.min(
-                            100,
-                            Number(
-                                progress
-                            )
-                        )
-                    );
-
-
-                course.progress =
-                    newProgress;
-
-
-                course.updatedAt =
-                    new Date()
-                        .toISOString();
-
-
-                const saved =
-                    saveCourses(
-                        courses
-                    );
-
-
-                if (!saved) {
-
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Impossible de sauvegarder la progression."
-                    });
-                }
-
-
-                loadCourses();
-
-                updateStatistics();
-
-                updateProgress();
-
-
-                return JSON.stringify({
-
-                    success: true,
-
-                    message:
-                        `La progression de "${course.title}" est maintenant de ${newProgress}%.`,
-
-                    course:
-                        course
-                });
-            }
-        });
-
-
-        // ==================================================
-        // 🗑️ OUTIL 5 — SUPPRIMER UN COURS
-        // ==================================================
-
-        await document.modelContext.registerTool({
-
-            name:
-                "delete_course",
-
-            title:
-                "Supprimer un cours",
-
-            description:
-                "Supprime un cours enregistré dans Study webMCP à partir de son identifiant.",
-
-            inputSchema: {
-
-                type: "object",
-
-                properties: {
-
-                    courseId: {
-
-                        type: "string",
-
-                        description:
-                            "Identifiant unique du cours."
-                    }
-                },
-
-                required: [
-                    "courseId"
-                ]
-            },
-
-            annotations: {
-
-                readOnlyHint: false
-            },
-
-            execute: async ({
-                courseId
-            }) => {
-
-                const courses =
-                    getCourses();
-
-
-                const course =
-                    courses.find(
-                        item =>
-                            item.id ===
-                            courseId
-                    );
-
-
-                if (!course) {
-
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Cours introuvable."
-                    });
-                }
-
-
-                const updatedCourses =
-                    courses.filter(
-                        item =>
-                            item.id !==
-                            courseId
-                    );
-
-
-                const saved =
-                    saveCourses(
-                        updatedCourses
-                    );
-
-
-                if (!saved) {
-
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Impossible de supprimer le cours."
-                    });
-                }
-
-
-                loadCourses();
-
-                updateStatistics();
-
-                updateProgress();
-
-
-                return JSON.stringify({
-
-                    success: true,
-
-                    message:
-                        `Le cours "${course.title}" a été supprimé.`
-                });
-            }
-        });
-
-
-        // ==================================================
-        // 📅 OUTIL 6 — GÉNÉRER LE PLAN D'ÉTUDE
-        // ==================================================
-
-        await document.modelContext.registerTool({
-
-            name:
-                "generate_study_plan",
-
-            title:
-                "Générer le plan d'étude",
-
-            description:
-                "Génère le plan d'étude à partir des cours enregistrés dans Study webMCP.",
+                "Retourne le plan d'étude basé sur les dates d'examen des cours.",
 
             inputSchema: {
 
                 type: "object",
 
                 properties: {}
+
             },
 
             annotations: {
 
-                readOnlyHint: false
+                readOnlyHint: true
+
             },
 
-            execute: async () => {
+            execute: async function () {
 
-                const courses =
-                    getCourses();
+                return getStudyPlanData();
 
-
-                if (
-                    courses.length ===
-                    0
-                ) {
-
-                    return JSON.stringify({
-
-                        success: false,
-
-                        message:
-                            "Aucun cours n'est actuellement enregistré."
-                    });
-                }
-
-
-                generateStudyPlan();
-
-
-                return JSON.stringify({
-
-                    success: true,
-
-                    message:
-                        "Le plan d'étude a été généré.",
-
-                    count:
-                        courses.length
-                });
             }
+
         });
 
 
-        // ==================================================
-        // 🧠 OUTIL 7 — OUVRIR LE QUIZ
-        // ==================================================
+        /*
+        ===============================================
+        OUTIL 4 : OUVRIR LE QUIZ
+        ===============================================
+        */
 
-        await document.modelContext.registerTool({
+        await modelContext.registerTool({
 
-            name:
-                "open_quiz_interface",
-
-            title:
-                "Ouvrir le générateur de quiz",
+            name: "open_quiz_interface",
 
             description:
-                "Ouvre l'interface de création de quiz de Study webMCP.",
+                "Ouvre l'interface de génération de quiz de Study webMCP.",
 
             inputSchema: {
 
                 type: "object",
 
                 properties: {}
+
             },
 
             annotations: {
 
                 readOnlyHint: false
+
             },
 
-            execute: async () => {
+            execute: async function () {
 
                 openQuizGenerator();
 
 
-                return JSON.stringify({
+                return {
 
                     success: true,
 
                     message:
-                        "L'interface du quiz est ouverte."
-                });
+                        "L'interface de génération de quiz a été ouverte."
+
+                };
+
             }
+
         });
 
 
+        webMCPInitialized = true;
+
+
         console.log(
-            "✅ Study webMCP : 7 outils IA enregistrés avec succès."
+            "Study webMCP : outils IA enregistrés avec succès."
         );
+
+
+        if (
+            typeof modelContext.getTools ===
+            "function"
+        ) {
+
+            const tools =
+                await modelContext.getTools();
+
+            console.log(
+                "Outils WebMCP disponibles :",
+                tools
+            );
+        }
 
 
     } catch (error) {
 
         console.error(
-            "❌ Erreur lors de l'enregistrement WebMCP :",
+            "Erreur WebMCP :",
             error
         );
+
     }
+
 }
-```
+
+
+/* ======================================================
+   DONNÉES POUR L'IA
+====================================================== */
+
+function getCoursesForAI() {
+
+    return courses.map(course => ({
+
+        id: course.id,
+
+        title: course.title,
+
+        subject: course.subject,
+
+        level: course.level || "",
+
+        description:
+            course.description || "",
+
+        examDate:
+            course.examDate || "",
+
+        progress:
+            Number(course.progress || 0),
+
+        createdAt:
+            course.createdAt || ""
+
+    }));
+}
+
+
+/* ======================================================
+   AJOUT D'UN COURS PAR L'IA
+====================================================== */
+
+function addCourseForAI(args) {
+
+    if (!args || typeof args !== "object") {
+
+        return {
+
+            success: false,
+
+            message:
+                "Les informations du cours sont invalides."
+
+        };
+    }
+
+
+    try {
+
+        const course = addCourse(
+
+            args.title,
+
+            args.subject,
+
+            args.level,
+
+            args.description,
+
+            args.examDate
+
+        );
+
+
+        return {
+
+            success: true,
+
+            message:
+                `Le cours "${course.title}" a été ajouté avec succès.`,
+
+            course
+
+        };
+
+    } catch (error) {
+
+        return {
+
+            success: false,
+
+            message:
+                error.message
+
+        };
+
+    }
+
+}
+
+
+/* ======================================================
+   UTILITAIRES
+====================================================== */
+
+function updateElement(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+
+    }
+
+}
+
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+
+        .replaceAll("&", "&amp;")
+
+        .replaceAll("<", "&lt;")
+
+        .replaceAll(">", "&gt;")
+
+        .replaceAll('"', "&quot;")
+
+        .replaceAll("'", "&#039;");
+}
+
+
+/* ======================================================
+   EXPORTS POUR WEBMCP / AUTRES SCRIPTS
+====================================================== */
+
+window.getCoursesForAI =
+    getCoursesForAI;
+
+
+window.addCourseForAI =
+    addCourseForAI;
+
+
+window.generateStudyPlan =
+    generateStudyPlan;
+
+
+window.openQuizGenerator =
+    openQuizGenerator;
+
+
+window.addCourse =
+    addCourse;
+
+
+window.editCourse =
+    editCourse;
+
+
+window.deleteCourse =
+    deleteCourse;
+
+
+window.searchCourses =
+    searchCourses;
+
+
+window.filterCourses =
+    filterCourses;
+
+
+window.renderCourses =
+    renderCourses;
